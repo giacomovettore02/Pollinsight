@@ -19,10 +19,11 @@ function smooth(points: [number, number][]): string {
 
 interface ActivityChartProps {
   data: number[];
+  previousData?: number[];
 }
 
-export default function ActivityChart({ data }: ActivityChartProps) {
-  const maxVal = Math.max(...data, 1);
+export default function ActivityChart({ data, previousData }: ActivityChartProps) {
+  const maxVal = Math.max(...data, ...(previousData ?? []), 1);
   const xStep = INNER_W / (data.length - 1);
 
   const pts: [number, number][] = data.map((v, i) => [
@@ -30,8 +31,16 @@ export default function ActivityChart({ data }: ActivityChartProps) {
     PAD.top + INNER_H - (v / maxVal) * INNER_H,
   ]);
 
+  const prevPts: [number, number][] | null = previousData
+    ? previousData.map((v, i) => [
+        PAD.left + i * xStep,
+        PAD.top + INNER_H - (v / maxVal) * INNER_H,
+      ])
+    : null;
+
   const linePath = smooth(pts);
   const areaPath = `${linePath} L ${pts[pts.length - 1][0]} ${PAD.top + INNER_H} L ${pts[0][0]} ${PAD.top + INNER_H} Z`;
+  const prevLinePath = prevPts ? smooth(prevPts) : null;
 
   // Night bands: 0-6 and 20-24
   const nightLeft1 = PAD.left;
@@ -64,6 +73,17 @@ export default function ActivityChart({ data }: ActivityChartProps) {
             <span className="w-3 h-3 rounded-full inline-block" style={{ backgroundColor: '#fde99c' }} />
             Day
           </span>
+          {prevLinePath && (
+            <>
+              <span className="w-px h-3 bg-gray-200 inline-block" />
+              <span className="flex items-center gap-1.5 text-gray-400">
+                <svg width="20" height="10" viewBox="0 0 20 10">
+                  <line x1="0" y1="5" x2="20" y2="5" stroke="#b0b8c1" strokeWidth="2" strokeDasharray="4 3" strokeLinecap="round" />
+                </svg>
+                Yesterday
+              </span>
+            </>
+          )}
         </div>
       </div>
 
@@ -134,10 +154,25 @@ export default function ActivityChart({ data }: ActivityChartProps) {
             );
           })}
 
+          {/* Yesterday line (behind today) */}
+          {prevLinePath && (
+            <path
+              d={prevLinePath}
+              fill="none"
+              stroke="#b0b8c1"
+              strokeWidth="2"
+              strokeDasharray="6 4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              clipPath="url(#chartClip)"
+              opacity="0.7"
+            />
+          )}
+
           {/* Area fill */}
           <path d={areaPath} fill="url(#areaGrad)" clipPath="url(#chartClip)" />
 
-          {/* Line */}
+          {/* Today line */}
           <path
             d={linePath}
             fill="none"

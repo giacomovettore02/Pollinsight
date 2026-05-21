@@ -80,7 +80,7 @@ export default function App() {
         />
 
         {/* Activity Chart */}
-        <ActivityChart data={d.hourly_activity} />
+        <ActivityChart data={d.hourly_activity} previousData={d.hourly_activity_yesterday} />
 
         {/* Env mini charts */}
         <div className="flex gap-4 flex-wrap md:flex-nowrap">
