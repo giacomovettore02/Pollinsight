@@ -13,21 +13,31 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
       className="fixed left-0 top-0 h-full w-24 md:w-32 flex flex-col items-center py-6 z-50 shadow-sm"
       style={{ backgroundColor: 'white' }}
     >
-      {/* Logo at top */}
+      {/* Logo at top with ladybug image and text */}
       <div
-        className="rounded-2xl p-2.5 flex items-center justify-center shadow-sm mb-8"
-        style={{ backgroundColor: '#6B2D8C' }}
+        className="flex flex-col items-center gap-2 mb-8 px-2"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-          <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z" />
-        </svg>
+        <img
+          src="/coccinella.Dq1fXhvj.svg"
+          alt="PollinAction Logo"
+          className="w-12 h-12 md:w-14 md:h-14"
+        />
+        <span
+          className="text-xs md:text-sm font-bold text-center leading-tight hidden md:block"
+          style={{
+            color: '#6B2D8C',
+            fontFamily: 'Comfortaa, sans-serif',
+          }}
+        >
+          PollinAction
+        </span>
       </div>
 
       {/* Navigation items */}
-      <nav className="flex flex-col gap-3 flex-1">
+      <nav className="flex flex-col gap-3 flex-1 w-full px-2">
         <button
           onClick={() => onViewChange('realtime')}
-          className={`group relative flex flex-col items-center justify-center gap-2 w-20 md:w-28 rounded-2xl py-3 px-2 transition-all ${
+          className={`group relative flex items-center justify-start gap-3 w-full rounded-2xl py-3 px-3 transition-all ${
             currentView === 'realtime'
               ? 'shadow-sm'
               : 'hover:bg-gray-50'
@@ -41,9 +51,10 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
             size={20}
             strokeWidth={2.5}
             color={currentView === 'realtime' ? '#6B2D8C' : '#9ca3af'}
+            className="flex-shrink-0"
           />
           <span
-            className="text-xs md:text-sm font-medium text-center leading-tight"
+            className="text-xs md:text-sm font-medium leading-tight hidden md:block"
             style={{
               color: currentView === 'realtime' ? '#6B2D8C' : '#9ca3af',
               fontFamily: 'Afacad Flux, sans-serif',
@@ -55,7 +66,7 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
 
         <button
           onClick={() => onViewChange('daily')}
-          className={`group relative flex flex-col items-center justify-center gap-2 w-20 md:w-28 rounded-2xl py-3 px-2 transition-all ${
+          className={`group relative flex items-center justify-start gap-3 w-full rounded-2xl py-3 px-3 transition-all ${
             currentView === 'daily'
               ? 'shadow-sm'
               : 'hover:bg-gray-50'
@@ -69,9 +80,10 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
             size={20}
             strokeWidth={2.5}
             color={currentView === 'daily' ? '#6B2D8C' : '#9ca3af'}
+            className="flex-shrink-0"
           />
           <span
-            className="text-xs md:text-sm font-medium text-center leading-tight"
+            className="text-xs md:text-sm font-medium leading-tight hidden md:block"
             style={{
               color: currentView === 'daily' ? '#6B2D8C' : '#9ca3af',
               fontFamily: 'Afacad Flux, sans-serif',
