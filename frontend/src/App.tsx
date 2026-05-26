@@ -58,6 +58,18 @@ export default function App() {
               </div>
             </div>
 
+            {/* Device health */}
+            <div
+              className="rounded-[10px] px-6 py-4 shadow-sm"
+              style={{ backgroundColor: 'white' }}
+            >
+              <DeviceHealth
+                battery={d.device.battery}
+                solarCharging={d.device.solar_charging}
+                signal={d.device.signal}
+              />
+            </div>
+
             {/* Summary Row */}
             <SummaryRow
               totalBees={d.total_bees}
@@ -90,18 +102,6 @@ export default function App() {
                 bgColor="#e6faf5"
                 gradId="humidGrad"
                 gradStart="#20C997"
-              />
-            </div>
-
-            {/* Device health */}
-            <div
-              className="rounded-[10px] px-6 py-4 shadow-sm"
-              style={{ backgroundColor: 'white' }}
-            >
-              <DeviceHealth
-                battery={d.device.battery}
-                solarCharging={d.device.solar_charging}
-                signal={d.device.signal}
               />
             </div>
           </main>
