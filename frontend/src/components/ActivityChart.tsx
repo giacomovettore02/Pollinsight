@@ -66,7 +66,7 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
         <div className="flex items-center gap-4 text-xs" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
           <span className="flex items-center gap-1.5 text-gray-500">
             <svg width="20" height="10" viewBox="0 0 20 10">
-              <line x1="0" y1="5" x2="20" y2="5" stroke="#5b8dee" strokeWidth="2.5" strokeLinecap="round" />
+              <line x1="0" y1="5" x2="20" y2="5" stroke="#6B2D8C" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
             Today
           </span>
@@ -90,8 +90,8 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
         >
           <defs>
             <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#5b8dee" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="#5b8dee" stopOpacity="0.02" />
+              <stop offset="0%" stopColor="#6B2D8C" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#6B2D8C" stopOpacity="0.02" />
             </linearGradient>
             <clipPath id="chartClip">
               <rect x={PAD.left} y={PAD.top} width={INNER_W} height={INNER_H} />
@@ -166,7 +166,7 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
           <path
             d={linePath}
             fill="none"
-            stroke="#5b8dee"
+            stroke="#6B2D8C"
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -176,7 +176,7 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
           {/* Data dots at peaks */}
           {pts.map(([x, y], i) =>
             data[i] > 300 ? (
-              <circle key={i} cx={x} cy={y} r="4" fill="#5b8dee" stroke="white" strokeWidth="2" />
+              <circle key={i} cx={x} cy={y} r="4" fill="#6B2D8C" stroke="white" strokeWidth="2" />
             ) : null
           )}
 

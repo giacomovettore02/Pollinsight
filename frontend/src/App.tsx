@@ -29,7 +29,7 @@ export default function App() {
       <Sidebar currentView={currentView} onViewChange={setCurrentView} />
 
       {/* Main content area */}
-      <div className="flex-1" style={{ marginLeft: '4rem' }}>
+      <div className="flex-1" style={{ marginLeft: '6rem' }}>
         {/* Header */}
         <header
           className="sticky top-0 z-40 border-b border-gray-100"
@@ -56,13 +56,13 @@ export default function App() {
             <div className="flex items-center gap-3">
               <div
                 className="rounded-2xl px-4 py-2 flex items-center gap-2 shadow-sm"
-                style={{ backgroundColor: '#dcfd8b' }}
+                style={{ backgroundColor: '#FFD700' }}
               >
-                <Sun size={15} strokeWidth={2.5} color="#6b8c1a" />
+                <Sun size={15} strokeWidth={2.5} color="#6B2D8C" />
                 <span
                   className="font-semibold text-sm"
                   style={{
-                    color: '#4a6210',
+                    color: '#6B2D8C',
                     fontFamily: 'Afacad Flux, sans-serif',
                   }}
                 >
@@ -95,8 +95,8 @@ export default function App() {
               <div
                 className="flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-medium shadow-sm"
                 style={{
-                  backgroundColor: '#fdd5bd',
-                  color: '#b84f10',
+                  backgroundColor: '#e6faf5',
+                  color: '#20C997',
                   fontFamily: 'Afacad Flux, sans-serif',
                 }}
               >
@@ -125,19 +125,19 @@ export default function App() {
                 data={d.hourly_temp}
                 label="Temperature"
                 unit="°C"
-                color="#ff823a"
-                bgColor="#fff8f4"
+                color="#6B2D8C"
+                bgColor="#f5f0f8"
                 gradId="tempGrad"
-                gradStart="#ff823a"
+                gradStart="#6B2D8C"
               />
               <EnvMiniChart
                 data={d.hourly_humidity}
                 label="Humidity"
                 unit="%"
-                color="#5b8dee"
-                bgColor="#f0f6ff"
+                color="#20C997"
+                bgColor="#e6faf5"
                 gradId="humidGrad"
-                gradStart="#5b8dee"
+                gradStart="#20C997"
               />
             </div>
 

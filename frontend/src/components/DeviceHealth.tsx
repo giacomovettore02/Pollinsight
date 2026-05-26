@@ -14,8 +14,8 @@ export default function DeviceHealth({ battery, solarCharging, signal }: DeviceH
       </p>
       <div className="flex items-center gap-5">
         <div className="flex items-center gap-2">
-          <div className="rounded-xl p-1.5" style={{ backgroundColor: '#e8f9f0' }}>
-            <BatteryCharging size={16} strokeWidth={2} color="#28c76f" />
+          <div className="rounded-xl p-1.5" style={{ backgroundColor: '#f5f0f8' }}>
+            <BatteryCharging size={16} strokeWidth={2} color="#6B2D8C" />
           </div>
           <div>
             <p className="text-xs font-semibold text-gray-700 leading-none" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
@@ -28,8 +28,8 @@ export default function DeviceHealth({ battery, solarCharging, signal }: DeviceH
         </div>
         <div className="w-px h-8 bg-gray-200" />
         <div className="flex items-center gap-2">
-          <div className="rounded-xl p-1.5" style={{ backgroundColor: '#f0f4ff' }}>
-            <Signal size={16} strokeWidth={2} color="#5b8dee" />
+          <div className="rounded-xl p-1.5" style={{ backgroundColor: '#e6faf5' }}>
+            <Signal size={16} strokeWidth={2} color="#20C997" />
           </div>
           <div>
             <p className="text-xs font-semibold text-gray-700 leading-none" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>

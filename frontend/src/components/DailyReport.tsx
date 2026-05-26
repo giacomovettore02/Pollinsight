@@ -1,7 +1,7 @@
 import VarroaAlert from './VarroaAlert';
 import EnvMiniChart from './EnvMiniChart';
 import { apiaryData as d } from '../data/mockData';
-import { Bug, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Bug, TrendingUp, TriangleAlert as AlertTriangle } from 'lucide-react';
 
 export default function DailyReport() {
   const todayStr = new Date().toLocaleDateString('en-US', {
@@ -129,9 +129,9 @@ export default function DailyReport() {
         <div className="flex items-center gap-3 mb-5">
           <div
             className="rounded-2xl p-2.5"
-            style={{ backgroundColor: '#f0f6ff' }}
+            style={{ backgroundColor: '#e6faf5' }}
           >
-            <TrendingUp size={18} strokeWidth={2.5} color="#5b8dee" />
+            <TrendingUp size={18} strokeWidth={2.5} color="#20C997" />
           </div>
           <div>
             <h3
@@ -154,19 +154,19 @@ export default function DailyReport() {
             data={d.hourly_temp}
             label="Temperature"
             unit="°C"
-            color="#ff823a"
-            bgColor="#fff8f4"
+            color="#6B2D8C"
+            bgColor="#f5f0f8"
             gradId="dailyTempGrad"
-            gradStart="#ff823a"
+            gradStart="#6B2D8C"
           />
           <EnvMiniChart
             data={d.hourly_humidity}
             label="Humidity"
             unit="%"
-            color="#5b8dee"
-            bgColor="#f0f6ff"
+            color="#20C997"
+            bgColor="#e6faf5"
             gradId="dailyHumidGrad"
-            gradStart="#5b8dee"
+            gradStart="#20C997"
           />
         </div>
 
@@ -174,7 +174,7 @@ export default function DailyReport() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
           <div
             className="rounded-2xl p-4"
-            style={{ backgroundColor: '#fff8f4' }}
+            style={{ backgroundColor: '#f5f0f8' }}
           >
             <p
               className="text-xs text-gray-400 mb-1"
@@ -184,7 +184,7 @@ export default function DailyReport() {
             </p>
             <p
               className="font-bold text-xl text-gray-800"
-              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#ff823a' }}
+              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#6B2D8C' }}
             >
               {(
                 d.hourly_temp.reduce((a, b) => a + b, 0) / d.hourly_temp.length
@@ -194,7 +194,7 @@ export default function DailyReport() {
           </div>
           <div
             className="rounded-2xl p-4"
-            style={{ backgroundColor: '#fff8f4' }}
+            style={{ backgroundColor: '#f5f0f8' }}
           >
             <p
               className="text-xs text-gray-400 mb-1"
@@ -204,14 +204,14 @@ export default function DailyReport() {
             </p>
             <p
               className="font-bold text-xl"
-              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#ff823a' }}
+              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#6B2D8C' }}
             >
               {Math.max(...d.hourly_temp).toFixed(1)}°C
             </p>
           </div>
           <div
             className="rounded-2xl p-4"
-            style={{ backgroundColor: '#f0f6ff' }}
+            style={{ backgroundColor: '#e6faf5' }}
           >
             <p
               className="text-xs text-gray-400 mb-1"
@@ -221,7 +221,7 @@ export default function DailyReport() {
             </p>
             <p
               className="font-bold text-xl"
-              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#5b8dee' }}
+              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#20C997' }}
             >
               {(
                 d.hourly_humidity.reduce((a, b) => a + b, 0) /
@@ -232,7 +232,7 @@ export default function DailyReport() {
           </div>
           <div
             className="rounded-2xl p-4"
-            style={{ backgroundColor: '#f0f6ff' }}
+            style={{ backgroundColor: '#e6faf5' }}
           >
             <p
               className="text-xs text-gray-400 mb-1"
@@ -242,7 +242,7 @@ export default function DailyReport() {
             </p>
             <p
               className="font-bold text-xl"
-              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#5b8dee' }}
+              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#20C997' }}
             >
               {Math.min(...d.hourly_humidity).toFixed(0)}%
             </p>
