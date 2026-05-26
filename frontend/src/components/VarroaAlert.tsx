@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TriangleAlert as AlertTriangle, X, ZoomIn, Bug } from 'lucide-react';
+import { AlertTriangle, X, ZoomIn, Bug } from 'lucide-react';
 
 interface VarroaAlertProps {
   hiveName: string;
