@@ -70,7 +70,7 @@ export default function SummaryRow({ totalBees, temp, humidity, healthScore }: S
         iconColor="white"
       />
       <div
-        className="flex-1 rounded-[28px] p-6 shadow-sm flex items-center gap-4 min-w-0"
+        className="flex-1 rounded-[10px] p-6 shadow-sm flex items-center gap-4 min-w-0"
         style={{ backgroundColor: '#f5f0f8' }}
       >
         <div className="relative flex-shrink-0 w-14 h-14">
