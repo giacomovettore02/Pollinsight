@@ -53,7 +53,7 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
   const yTicks = [0, 300, 600, 900, 1200].filter(v => v <= maxVal + 200);
 
   return (
-    <div className="rounded-[28px] p-6 shadow-sm" style={{ backgroundColor: 'white' }}>
+    <div className="rounded-[10px] p-6 shadow-sm" style={{ backgroundColor: 'white' }}>
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-bold text-gray-800 text-lg" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
