@@ -45,7 +45,7 @@ export default function DailyReport() {
 
       {/* Varroa Detection Section */}
       <section
-        className="rounded-[28px] p-6 shadow-sm"
+        className="rounded-[16px] p-6 shadow-sm"
         style={{ backgroundColor: 'white' }}
       >
         <div className="flex items-center gap-3 mb-5">
@@ -123,7 +123,7 @@ export default function DailyReport() {
 
       {/* Environmental Trends Section */}
       <section
-        className="rounded-[28px] p-6 shadow-sm"
+        className="rounded-[16px] p-6 shadow-sm"
         style={{ backgroundColor: 'white' }}
       >
         <div className="flex items-center gap-3 mb-5">
