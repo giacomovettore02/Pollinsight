@@ -29,7 +29,7 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
             fontFamily: 'Comfortaa, sans-serif',
           }}
         >
-          PollinSight
+          PolliSight
         </span>
       </div>
 
@@ -89,7 +89,7 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
               fontFamily: 'Afacad Flux, sans-serif',
             }}
           >
-            Reports
+            Daily
           </span>
         </button>
       </nav>

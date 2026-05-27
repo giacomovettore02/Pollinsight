@@ -1,5 +1,5 @@
 export const apiaryData = {
-  apiary_name: "Via Marosticana, 33",
+  apiary_name: "Trento Valley Hives",
   hive_id: "Hive 4",
   hive_health_score: 92,
   varroa_detected: true,
