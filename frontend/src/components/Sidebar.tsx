@@ -89,7 +89,7 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
               fontFamily: 'Afacad Flux, sans-serif',
             }}
           >
-            Daily
+            Reports
           </span>
         </button>
       </nav>
