@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Sidebar, { ViewType } from './components/Sidebar';
-import SummaryRow from './components/SummaryRow';
+import HealthIndicator from './components/HealthIndicator';
 import ActivityChart from './components/ActivityChart';
 import EnvMiniChart from './components/EnvMiniChart';
 import DeviceHealth from './components/DeviceHealth';
@@ -67,8 +67,8 @@ export default function App() {
                 signal={d.device.signal}
               />
             </div>
-            {/* Summary Row */}
-            <SummaryRow
+            {/* Health Indicator */}
+            <HealthIndicator
               totalBees={d.total_bees}
               temp={d.env_data.temp}
               humidity={d.env_data.humidity}
