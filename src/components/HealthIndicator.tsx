@@ -8,9 +8,9 @@ interface HealthIndicatorProps {
 
 export default function HealthIndicator({ totalBees, temp, humidity }: HealthIndicatorProps) {
   // Determine optimal ranges
-  const isTempOptimal = temp >= 34 && temp <= 36; // Optimal for brood
-  const isHumidityOptimal = humidity >= 40 && humidity <= 60; // Optimal range
-  const isActivityGood = totalBees > 800; // Threshold for good activity
+  const isTempOptimal = temp >= 34 && temp <= 36;
+  const isHumidityOptimal = humidity >= 40 && humidity <= 60;
+  const isActivityGood = totalBees > 800;
 
   // Determine health status
   const hasIssue = !isActivityGood && (isTempOptimal || isHumidityOptimal);
@@ -24,19 +24,19 @@ export default function HealthIndicator({ totalBees, temp, humidity }: HealthInd
   let alertIcon = null;
 
   if (isCritical) {
-    alertMessage = 'Condizioni critiche. Controllare immediatamente le api e l\'ambiente.';
+    alertMessage = 'Condizioni critiche rilevate. L\'alveare necessita di attenzione immediata. Le api potrebbero essere sottoposte a stress a causa delle condizioni ambientali sfavorevoli. Verificare l\'accesso all\'acqua, la ventilazione e lo spazio disponibile.';
     alertType = 'critical';
     alertColor = '#dc2626';
     alertBg = '#fee2e2';
     alertIcon = <AlertTriangle size={20} strokeWidth={2.5} />;
   } else if (hasIssue) {
-    alertMessage = 'Attività bassa nonostante condizioni ambientali favorevoli. Indagare possibili problemi.';
+    alertMessage = 'Attività inferiore al normale nonostante le condizioni ambientali siano favorevoli. Potrebbero essere presenti parassiti, malattie o problemi interni all\'alveare. Si consiglia di ispezionare l\'alveare nei prossimi giorni.';
     alertType = 'warning';
     alertColor = '#ff823a';
     alertBg = '#fff0e8';
     alertIcon = <AlertCircle size={20} strokeWidth={2.5} />;
   } else if (isHealthy) {
-    alertMessage = 'Alveare in ottime condizioni. Continua il monitoraggio regolare.';
+    alertMessage = 'L\'alveare è in ottime condizioni. Tutti i parametri sono entro i range ottimali. Le api sono attive e l\'ambiente è favorevole per lo sviluppo della popolazione e la raccolta del nettare.';
     alertType = 'success';
     alertColor = '#22c55e';
     alertBg = '#f0fdf4';
@@ -44,18 +44,19 @@ export default function HealthIndicator({ totalBees, temp, humidity }: HealthInd
   }
 
   return (
-    <div className="grid grid-cols-4 gap-4">
-      {/* Total Bees - Vertical Card */}
-      <div
-        className="rounded-[10px] p-4 shadow-sm flex flex-col items-center justify-between h-40"
-        style={{ backgroundColor: '#f5f0f8' }}
-      >
-        <div className="text-center">
-          <p className="text-gray-400 text-xs mb-2" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-            Attività Totale
+    <div className="grid grid-cols-3 gap-6">
+      {/* Left Column - Vertical Cards */}
+      <div className="flex flex-col gap-4">
+        {/* Total Bees Card */}
+        <div
+          className="rounded-[10px] p-6 shadow-sm"
+          style={{ backgroundColor: '#f5f0f8' }}
+        >
+          <p className="text-gray-600 text-sm font-medium mb-4" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
+            Attività totale
           </p>
           <p
-            className="font-bold text-3xl text-center"
+            className="font-bold text-4xl"
             style={{
               color: '#6B2D8C',
               fontFamily: 'Comfortaa, sans-serif',
@@ -63,49 +64,43 @@ export default function HealthIndicator({ totalBees, temp, humidity }: HealthInd
           >
             {totalBees.toLocaleString()}
           </p>
+          <p className="text-xs text-gray-500 mt-3" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
+            {isActivityGood ? 'Attività: Buona' : 'Attività: Bassa'}
+          </p>
         </div>
-        <div className="w-8 h-0.5 bg-gray-300 mt-2" />
-        <p className="text-xs text-gray-500 mt-2 text-center" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-          {isActivityGood ? 'Buona' : 'Bassa'}
-        </p>
-      </div>
 
-      {/* Temperature - Vertical Card */}
-      <div
-        className="rounded-[10px] p-4 shadow-sm flex flex-col items-center justify-between h-40"
-        style={{ backgroundColor: '#fffbd9' }}
-      >
-        <div className="text-center">
-          <p className="text-gray-400 text-xs mb-2" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
+        {/* Temperature Card */}
+        <div
+          className="rounded-[10px] p-6 shadow-sm"
+          style={{ backgroundColor: '#fffbd9' }}
+        >
+          <p className="text-gray-600 text-sm font-medium mb-4" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
             Temperatura
           </p>
           <p
-            className="font-bold text-3xl"
+            className="font-bold text-4xl"
             style={{
-              color: '#6B2D8C',
+              color: '#FFB800',
               fontFamily: 'Comfortaa, sans-serif',
             }}
           >
-            {temp.toFixed(1)}°
+            {temp.toFixed(1)}°C
+          </p>
+          <p className="text-xs text-gray-500 mt-3" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
+            {isTempOptimal ? 'Stato: Ottimale' : temp > 36 ? 'Stato: Calda' : 'Stato: Fresca'}
           </p>
         </div>
-        <div className="w-8 h-0.5 bg-gray-300 mt-2" />
-        <p className="text-xs text-gray-500 mt-2 text-center" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-          {isTempOptimal ? 'Ottimale' : temp > 36 ? 'Calda' : 'Fresca'}
-        </p>
-      </div>
 
-      {/* Humidity - Vertical Card */}
-      <div
-        className="rounded-[10px] p-4 shadow-sm flex flex-col items-center justify-between h-40"
-        style={{ backgroundColor: '#e6faf5' }}
-      >
-        <div className="text-center">
-          <p className="text-gray-400 text-xs mb-2" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
+        {/* Humidity Card */}
+        <div
+          className="rounded-[10px] p-6 shadow-sm"
+          style={{ backgroundColor: '#e6faf5' }}
+        >
+          <p className="text-gray-600 text-sm font-medium mb-4" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
             Umidità
           </p>
           <p
-            className="font-bold text-3xl"
+            className="font-bold text-4xl"
             style={{
               color: '#20C997',
               fontFamily: 'Comfortaa, sans-serif',
@@ -113,36 +108,41 @@ export default function HealthIndicator({ totalBees, temp, humidity }: HealthInd
           >
             {humidity}%
           </p>
+          <p className="text-xs text-gray-500 mt-3" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
+            {isHumidityOptimal ? 'Stato: Ottimale' : humidity > 60 ? 'Stato: Alta' : 'Stato: Bassa'}
+          </p>
         </div>
-        <div className="w-8 h-0.5 bg-gray-300 mt-2" />
-        <p className="text-xs text-gray-500 mt-2 text-center" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-          {isHumidityOptimal ? 'Ottimale' : humidity > 60 ? 'Alta' : 'Bassa'}
-        </p>
       </div>
 
-      {/* Alert Box */}
+      {/* Right Column - Relationship Card */}
       {alertType && (
         <div
-          className="rounded-[10px] p-4 shadow-sm flex flex-col items-start justify-center h-40"
+          className="rounded-[10px] p-6 shadow-sm col-span-2"
           style={{ backgroundColor: alertBg }}
         >
-          <div className="flex items-start gap-3">
-            <div style={{ color: alertColor, display: 'flex', flexShrink: 0, marginTop: '2px' }}>
+          <div className="flex items-start gap-3 mb-4">
+            <div style={{ color: alertColor, display: 'flex', flexShrink: 0 }}>
               {alertIcon}
             </div>
-            <p
-              className="text-sm leading-tight"
+            <h3
+              className="font-bold text-lg"
               style={{
-                color: '#374151',
-                fontFamily: 'Afacad Flux, sans-serif',
+                color: alertColor,
+                fontFamily: 'Comfortaa, sans-serif',
               }}
             >
-              <span style={{ color: alertColor, fontWeight: 'bold' }}>
-                {alertType === 'success' ? 'Tutto bene:' : alertType === 'critical' ? 'Critico:' : 'Attenzione:'}
-              </span>{' '}
-              {alertMessage}
-            </p>
+              {alertType === 'success' ? 'Relazione dati: Alveare Sano' : alertType === 'critical' ? 'Relazione dati: Condizioni Critiche' : 'Relazione dati: Attenzione Richiesta'}
+            </h3>
           </div>
+          <p
+            className="text-sm leading-relaxed"
+            style={{
+              color: '#374151',
+              fontFamily: 'Afacad Flux, sans-serif',
+            }}
+          >
+            {alertMessage}
+          </p>
         </div>
       )}
     </div>
