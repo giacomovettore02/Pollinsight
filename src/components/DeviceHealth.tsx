@@ -10,7 +10,7 @@ export default function DeviceHealth({ battery, solarCharging, signal }: DeviceH
   return (
     <div className="flex items-center justify-between gap-4 flex-wrap">
       <p className="text-gray-400 text-xs" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-        Ultimo sincronismo: oggi alle 06:14
+        Ultimo aggiornamento: 06:14
       </p>
       <div className="flex items-center gap-5">
         <div className="flex items-center gap-2">
