@@ -31,8 +31,8 @@ export default function VarroaAlert({ hiveName, cropImages }: VarroaAlertProps) 
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="flex-shrink-0 flex items-center gap-2 bg-white text-sm font-semibold rounded-2xl px-5 py-2.5 transition-all hover:scale-105 active:scale-95 shadow"
-          style={{ color: '#ff823a', fontFamily: 'Afacad Flux, sans-serif' }}
+          className="flex-shrink-0 flex items-center gap-2 text-sm font-semibold rounded-2xl px-5 py-2.5 transition-all hover:scale-105 active:scale-95 shadow"
+          style={{ backgroundColor: '#20C997', color: 'white', fontFamily: 'Afacad Flux, sans-serif' }}
         >
           <ZoomIn size={16} strokeWidth={2.5} />
           View Proof

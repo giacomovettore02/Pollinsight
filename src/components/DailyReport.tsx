@@ -4,7 +4,7 @@ import { apiaryData as d } from '../data/mockData';
 import { Bug, TrendingUp, AlertTriangle } from 'lucide-react';
 
 export default function DailyReport() {
-  const todayStr = new Date().toLocaleDateString('en-US', {
+  const todayStr = new Date().toLocaleDateString('it-IT', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -34,7 +34,7 @@ export default function DailyReport() {
           className="font-bold text-gray-800 text-3xl mt-1"
           style={{ fontFamily: 'Comfortaa, sans-serif' }}
         >
-          Daily Report
+          Rapporto Giornaliero
         </h2>
       </div>
 
@@ -45,7 +45,7 @@ export default function DailyReport() {
 
       {/* Varroa Detection Section */}
       <section
-        className="rounded-[28px] p-6 shadow-sm"
+        className="rounded-[16px] p-6 shadow-sm"
         style={{ backgroundColor: 'white' }}
       >
         <div className="flex items-center gap-3 mb-5">
@@ -60,13 +60,13 @@ export default function DailyReport() {
               className="font-bold text-gray-800 text-lg"
               style={{ fontFamily: 'Comfortaa, sans-serif' }}
             >
-              Varroa Detection
+              Rilevamento Varroa
             </h3>
             <p
               className="text-gray-400 text-sm mt-0.5"
               style={{ fontFamily: 'Afacad Flux, sans-serif' }}
             >
-              Weekly mite monitoring summary
+              Riepilogo monitoraggio acari settimanale
             </p>
           </div>
         </div>
@@ -90,7 +90,7 @@ export default function DailyReport() {
                   className="text-xs text-gray-400"
                   style={{ fontFamily: 'Afacad Flux, sans-serif' }}
                 >
-                  {scan.day}
+                  {['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'][['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(scan.day)]}
                 </span>
               </div>
             );
@@ -105,16 +105,16 @@ export default function DailyReport() {
             <>
               <AlertTriangle size={16} strokeWidth={2.5} style={{ color: '#ff823a', marginTop: 2 }} />
               <p className="text-sm text-gray-600" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-                <strong className="text-gray-800">Action required:</strong> Varroa mites detected
-                in latest scan. Treatment recommended within 48 hours.
+                <strong className="text-gray-800">Azione richiesta:</strong> Acari varroa rilevati
+                nell'ultimo scan. Trattamento consigliato entro 48 ore.
               </p>
             </>
           ) : (
             <>
               <TrendingUp size={16} strokeWidth={2.5} style={{ color: '#22c55e', marginTop: 2 }} />
               <p className="text-sm text-gray-600" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-                <strong className="text-gray-800">All clear:</strong> No varroa mites detected this
-                week. Continue regular monitoring.
+                <strong className="text-gray-800">Tutto bene:</strong> Nessun acaro varroa rilevato questa
+                settimana. Continuare il monitoraggio regolare.
               </p>
             </>
           )}
@@ -123,28 +123,28 @@ export default function DailyReport() {
 
       {/* Environmental Trends Section */}
       <section
-        className="rounded-[28px] p-6 shadow-sm"
+        className="rounded-[16px] p-6 shadow-sm"
         style={{ backgroundColor: 'white' }}
       >
         <div className="flex items-center gap-3 mb-5">
           <div
             className="rounded-2xl p-2.5"
-            style={{ backgroundColor: '#f0f6ff' }}
+            style={{ backgroundColor: '#e6faf5' }}
           >
-            <TrendingUp size={18} strokeWidth={2.5} color="#5b8dee" />
+            <TrendingUp size={18} strokeWidth={2.5} color="#20C997" />
           </div>
           <div>
             <h3
               className="font-bold text-gray-800 text-lg"
               style={{ fontFamily: 'Comfortaa, sans-serif' }}
             >
-              Environmental Trends
+              Tendenze Ambientali
             </h3>
             <p
               className="text-gray-400 text-sm mt-0.5"
               style={{ fontFamily: 'Afacad Flux, sans-serif' }}
             >
-              24-hour temperature and humidity patterns
+              Modelli di temperatura e umidità nelle 24 ore
             </p>
           </div>
         </div>
@@ -152,21 +152,21 @@ export default function DailyReport() {
         <div className="flex gap-4 flex-wrap md:flex-nowrap">
           <EnvMiniChart
             data={d.hourly_temp}
-            label="Temperature"
+            label="Temperatura"
             unit="°C"
-            color="#ff823a"
-            bgColor="#fff8f4"
+            color="#6B2D8C"
+            bgColor="#f5f0f8"
             gradId="dailyTempGrad"
-            gradStart="#ff823a"
+            gradStart="#6B2D8C"
           />
           <EnvMiniChart
             data={d.hourly_humidity}
-            label="Humidity"
+            label="Umidità"
             unit="%"
-            color="#5b8dee"
-            bgColor="#f0f6ff"
+            color="#20C997"
+            bgColor="#e6faf5"
             gradId="dailyHumidGrad"
-            gradStart="#5b8dee"
+            gradStart="#20C997"
           />
         </div>
 
@@ -174,17 +174,17 @@ export default function DailyReport() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
           <div
             className="rounded-2xl p-4"
-            style={{ backgroundColor: '#fff8f4' }}
+            style={{ backgroundColor: '#f5f0f8' }}
           >
             <p
               className="text-xs text-gray-400 mb-1"
               style={{ fontFamily: 'Afacad Flux, sans-serif' }}
             >
-              Avg Temp
+              Temp Media
             </p>
             <p
               className="font-bold text-xl text-gray-800"
-              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#ff823a' }}
+              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#6B2D8C' }}
             >
               {(
                 d.hourly_temp.reduce((a, b) => a + b, 0) / d.hourly_temp.length
@@ -194,34 +194,34 @@ export default function DailyReport() {
           </div>
           <div
             className="rounded-2xl p-4"
-            style={{ backgroundColor: '#fff8f4' }}
+            style={{ backgroundColor: '#f5f0f8' }}
           >
             <p
               className="text-xs text-gray-400 mb-1"
               style={{ fontFamily: 'Afacad Flux, sans-serif' }}
             >
-              Max Temp
+              Temp Max
             </p>
             <p
               className="font-bold text-xl"
-              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#ff823a' }}
+              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#6B2D8C' }}
             >
               {Math.max(...d.hourly_temp).toFixed(1)}°C
             </p>
           </div>
           <div
             className="rounded-2xl p-4"
-            style={{ backgroundColor: '#f0f6ff' }}
+            style={{ backgroundColor: '#e6faf5' }}
           >
             <p
               className="text-xs text-gray-400 mb-1"
               style={{ fontFamily: 'Afacad Flux, sans-serif' }}
             >
-              Avg Humidity
+              Umidità Media
             </p>
             <p
               className="font-bold text-xl"
-              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#5b8dee' }}
+              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#20C997' }}
             >
               {(
                 d.hourly_humidity.reduce((a, b) => a + b, 0) /
@@ -232,17 +232,17 @@ export default function DailyReport() {
           </div>
           <div
             className="rounded-2xl p-4"
-            style={{ backgroundColor: '#f0f6ff' }}
+            style={{ backgroundColor: '#e6faf5' }}
           >
             <p
               className="text-xs text-gray-400 mb-1"
               style={{ fontFamily: 'Afacad Flux, sans-serif' }}
             >
-              Min Humidity
+              Umidità Min
             </p>
             <p
               className="font-bold text-xl"
-              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#5b8dee' }}
+              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#20C997' }}
             >
               {Math.min(...d.hourly_humidity).toFixed(0)}%
             </p>

@@ -31,19 +31,24 @@ interface ActivityChartProps {
 }
 
 export default function ActivityChart({ data, previousData }: ActivityChartProps) {
+  const currentHour = new Date().getHours();
   const maxVal = Math.max(...data, ...(previousData ?? []), 1);
   const xStep = INNER_W / (data.length - 1);
 
-  const pts: [number, number][] = data.map((v, i) => [
+  // Only show data up to the current hour to avoid misleading empty points in the future
+  // To change when having real-time data streaming in
+  const currentDataToDisplay = data.slice(0, currentHour + 1);
+
+  const pts: [number, number][] = currentDataToDisplay.map((v, i) => [
     PAD.left + i * xStep,
     PAD.top + INNER_H - (v / maxVal) * INNER_H,
   ]);
 
   const prevPts: [number, number][] | null = previousData
     ? previousData.map((v, i) => [
-        PAD.left + i * xStep,
-        PAD.top + INNER_H - (v / maxVal) * INNER_H,
-      ])
+      PAD.left + i * xStep,
+      PAD.top + INNER_H - (v / maxVal) * INNER_H,
+    ])
     : null;
 
   const linePath = smooth(pts);
@@ -53,29 +58,29 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
   const yTicks = [0, 300, 600, 900, 1200].filter(v => v <= maxVal + 200);
 
   return (
-    <div className="rounded-[28px] p-6 shadow-sm" style={{ backgroundColor: 'white' }}>
+    <div className="rounded-[10px] p-6 shadow-sm" style={{ backgroundColor: 'white' }}>
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-bold text-gray-800 text-lg" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
-            Bee Activity — 24h
+            Attività Api — 24h
           </h3>
           <p className="text-gray-400 text-sm mt-0.5" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-            Entries &amp; exits through hive gate sensor
+            Entrate e uscite attraverso il sensore del portale alveare
           </p>
         </div>
         <div className="flex items-center gap-4 text-xs" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
           <span className="flex items-center gap-1.5 text-gray-500">
             <svg width="20" height="10" viewBox="0 0 20 10">
-              <line x1="0" y1="5" x2="20" y2="5" stroke="#5b8dee" strokeWidth="2.5" strokeLinecap="round" />
+              <line x1="0" y1="5" x2="20" y2="5" stroke="#6B2D8C" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
-            Today
+            Oggi
           </span>
           {prevLinePath && (
             <span className="flex items-center gap-1.5 text-gray-400">
               <svg width="20" height="10" viewBox="0 0 20 10">
                 <line x1="0" y1="5" x2="20" y2="5" stroke="#b0b8c1" strokeWidth="2" strokeDasharray="4 3" strokeLinecap="round" />
               </svg>
-              Yesterday
+              Ieri
             </span>
           )}
         </div>
@@ -90,8 +95,8 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
         >
           <defs>
             <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#5b8dee" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="#5b8dee" stopOpacity="0.02" />
+              <stop offset="0%" stopColor="#6B2D8C" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#6B2D8C" stopOpacity="0.02" />
             </linearGradient>
             <clipPath id="chartClip">
               <rect x={PAD.left} y={PAD.top} width={INNER_W} height={INNER_H} />
@@ -166,7 +171,7 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
           <path
             d={linePath}
             fill="none"
-            stroke="#5b8dee"
+            stroke="#6B2D8C"
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -176,7 +181,7 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
           {/* Data dots at peaks */}
           {pts.map(([x, y], i) =>
             data[i] > 300 ? (
-              <circle key={i} cx={x} cy={y} r="4" fill="#5b8dee" stroke="white" strokeWidth="2" />
+              <circle key={i} cx={x} cy={y} r="4" fill="#6B2D8C" stroke="white" strokeWidth="2" />
             ) : null
           )}
 
@@ -197,6 +202,18 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
               </text>
             );
           })}
+
+          {/* Current hour marker */}
+          <line
+            x1={PAD.left + currentHour * xStep}
+            y1={PAD.top}
+            x2={PAD.left + currentHour * xStep}
+            y2={PAD.top + INNER_H}
+            stroke="#6B2D8C"
+            strokeWidth="2"
+            strokeDasharray="4 4"
+            opacity="0.5"
+          />
 
         </svg>
       </div>
