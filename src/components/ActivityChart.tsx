@@ -13,7 +13,6 @@ interface TimeSlot {
   end: number;
   label: string;
   fill: string;
-  activeFill: string;
   textColor: string;
   isCrown: boolean;
   modalIcon: string;
@@ -25,8 +24,8 @@ interface TimeSlot {
 const TIME_SLOTS: TimeSlot[] = [
   {
     start: 6, end: 11,
-    label: 'Mattina – Mezzogiorno',
-    fill: '#fef9e7', activeFill: '#fef08a',
+    label: 'Mattina',
+    fill: '#fef9e7',
     textColor: '#b45309', isCrown: false,
     modalIcon: '🌅',
     modalWhat: 'Le bottinatrici escono nelle prime ore del mattino per le raccolte di polline e nettare. Il traffico al portale cresce progressivamente con il riscaldarsi dell\'aria.',
@@ -35,7 +34,7 @@ const TIME_SLOTS: TimeSlot[] = [
   {
     start: 14, end: 16,
     label: 'Primo Pomeriggio',
-    fill: '#fef3c7', activeFill: '#fde68a',
+    fill: '#fef3c7',
     textColor: '#a16207', isCrown: false,
     modalIcon: '☀️',
     modalWhat: 'Le temperature raggiungono il picco giornaliero. Le api continuano a bottinare con intensità, privilegiando fonti di nettare vicine all\'alveare per limitare il dispendio energetico.',
@@ -44,9 +43,9 @@ const TIME_SLOTS: TimeSlot[] = [
   {
     start: 16, end: 19,
     label: 'Volo della Regina',
-    fill: '#fde8c8', activeFill: '#fdba74',
+    fill: '#fde8c8',
     textColor: '#b45309', isCrown: true,
-    modalIcon: '♛',
+    modalIcon: '👑',
     modalWhat: 'La regina vergine esce dall\'alveare per il volo di accoppiamento con i fuchi ad alta quota. L\'evento dura 20–30 minuti e avviene tipicamente nelle ore più calde del pomeriggio.',
     modalWhy: 'È un momento critico che determina la genetica, la fecondità della regina e il futuro intero della colonia. Una regina ben fecondata può deporre fino a 2.000 uova al giorno per anni.',
     modalWarning: 'Evitare qualsiasi disturbo fisico all\'alveare in questa fascia oraria. Urti, vibrazioni o aperture del tetto possono impedire il rientro della regina o spaventarla, compromettendo irreversibilmente il volo nuziale.',
@@ -54,7 +53,7 @@ const TIME_SLOTS: TimeSlot[] = [
   {
     start: 19, end: 24,
     label: 'Sera',
-    fill: '#dce8f5', activeFill: '#bfdbfe',
+    fill: '#dce8f5',
     textColor: '#3b82f6', isCrown: false,
     modalIcon: '🌙',
     modalWhat: 'L\'attività di volo si riduce rapidamente dopo il tramonto. Le api rientrano nell\'alveare e avviano la termoregolazione notturna, mantenendo il nido covata a circa 35°C.',
@@ -96,9 +95,9 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
 
   const prevPts: [number, number][] | null = previousData
     ? previousData.map((v, i) => [
-        PAD.left + i * xStep,
-        PAD.top + INNER_H - (v / maxVal) * INNER_H,
-      ])
+      PAD.left + i * xStep,
+      PAD.top + INNER_H - (v / maxVal) * INNER_H,
+    ])
     : null;
 
   const linePath = smooth(pts);
@@ -132,16 +131,16 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
                   onClick={() => setModalOpen(true)}
                   className="relative flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold cursor-pointer select-none transition-transform hover:scale-105 active:scale-95"
                   style={{
-                    backgroundColor: currentSlot.activeFill,
+                    backgroundColor: currentSlot.fill,
                     color: currentSlot.textColor,
                     fontFamily: 'Afacad Flux, sans-serif',
                     border: `1.5px solid ${currentSlot.textColor}55`,
                   }}
                 >
-                  {/* Pulse ring */}
+                  {/* Slot tag */}
                   <span
-                    className="absolute inset-0 rounded-full animate-ping"
-                    style={{ backgroundColor: currentSlot.activeFill, opacity: 0.5 }}
+                    className="absolute inset-0 rounded-full"
+                    style={{ backgroundColor: currentSlot.fill, opacity: 0.5 }}
                   />
                   <span className="relative flex items-center gap-1.5">
                     <span
@@ -195,7 +194,6 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
                 const x = PAD.left + slot.start * xStep;
                 const w = (slot.end - slot.start) * xStep;
                 const midX = x + w / 2;
-                const isActive = currentSlot?.label === slot.label;
 
                 return (
                   <g key={slot.label}>
@@ -204,31 +202,20 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
                       y={PAD.top}
                       width={w}
                       height={INNER_H}
-                      fill={isActive ? slot.activeFill : slot.fill}
-                      opacity={isActive ? 0.85 : 0.6}
+                      fill={slot.fill}
+                      opacity={0.6}
                       clipPath="url(#chartClip)"
                     />
-                    {isActive && (
-                      <rect
-                        x={x}
-                        y={PAD.top}
-                        width={w}
-                        height={3}
-                        fill={slot.textColor}
-                        opacity="0.7"
-                        clipPath="url(#chartClip)"
-                      />
-                    )}
                     <text
                       x={midX}
                       y={PAD.top - 7}
                       textAnchor="middle"
                       fontSize="8.5"
                       fill={slot.textColor}
-                      fontWeight={isActive ? '700' : '600'}
+                      fontWeight={'600'}
                       style={{ fontFamily: 'Afacad Flux, sans-serif' }}
                     >
-                      {slot.isCrown ? `♛ ${slot.label}` : slot.label}
+                      {slot.modalIcon}
                     </text>
                     <line
                       x1={x}
@@ -236,9 +223,9 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
                       x2={x + w}
                       y2={PAD.top - 20}
                       stroke={slot.textColor}
-                      strokeWidth={isActive ? 2.5 : 1.5}
+                      strokeWidth={1.5}
                       strokeLinecap="round"
-                      opacity={isActive ? 0.8 : 0.4}
+                      opacity={0.4}
                     />
                   </g>
                 );
@@ -338,7 +325,7 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
             {/* Coloured header strip */}
             <div
               className="px-6 pt-6 pb-5"
-              style={{ backgroundColor: currentSlot.activeFill }}
+              style={{ backgroundColor: currentSlot.fill }}
             >
               <button
                 onClick={() => setModalOpen(false)}
@@ -421,7 +408,7 @@ export default function ActivityChart({ data, previousData }: ActivityChartProps
                 onClick={() => setModalOpen(false)}
                 className="w-full rounded-2xl py-2.5 text-sm font-semibold transition-opacity hover:opacity-80"
                 style={{
-                  backgroundColor: currentSlot.activeFill,
+                  backgroundColor: currentSlot.fill,
                   color: currentSlot.textColor,
                   fontFamily: 'Afacad Flux, sans-serif',
                 }}
