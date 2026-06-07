@@ -103,7 +103,15 @@ export default function ActivityChart({
 
   const currentSlot = TIME_SLOTS.find(s => currentHour >= s.start && currentHour < s.end) ?? null;
 
-  const yTicks = [0, 300, 600, 900, 1200, 1500].filter(v => v <= maxVal + 200);
+  // Dynamic Y-axis ticks based on max value
+  const getYTicks = (max: number): number[] => {
+    const step = Math.pow(10, Math.floor(Math.log10(max)));
+    const normalizedMax = Math.ceil(max / step) * step;
+    const tickCount = 5;
+    const tickStep = normalizedMax / (tickCount - 1);
+    return Array.from({ length: tickCount }, (_, i) => Math.round(i * tickStep));
+  };
+  const yTicks = getYTicks(maxVal);
   const currentX = PAD.left + currentHour * xStep;
 
   // Prepare data for chart

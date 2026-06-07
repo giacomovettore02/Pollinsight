@@ -37,7 +37,7 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
     alertBorder = '#fecaca';
     alertIcon = <AlertTriangle size={22} strokeWidth={2.5} />;
   } else if (hasIssue) {
-    alertMessage = 'Attività api ridotta nonostante i parametri ambientali siano ottimali. Potrebbero essere presenti parassiti, malattie o problemi interni all\'alveare. Si consiglia un\'ispezione visiva nei prossimi giorni.';
+    alertMessage = 'Attività api ridotta nonostante i parametri ambientali siano ottimali (temperatura e umidità ideali). Si consiglia di verificare lo stato della colonia e le risorse a disposizione.';
     alertType = 'warning';
     alertColor = '#d97706';
     alertBg = '#fffbeb';
@@ -243,7 +243,6 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
                 const hiveTotal = hive.hourly_activity
                   .slice(0, currentHour + 1)
                   .reduce((a, b) => a + b, 0);
-                const isLowHealth = hive.health_score < 85 || hive.varroa_detected;
 
                 return (
                   <div
@@ -254,13 +253,9 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
                     {/* Hive indicator */}
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{
-                        backgroundColor: isLowHealth ? '#fef3c7' : '#dcfce7',
-                      }}
+                      style={{ backgroundColor: '#f5f0f8' }}
                     >
-                      <span style={{ fontSize: '18px' }}>
-                        {isLowHealth ? '⚠️' : '🐝'}
-                      </span>
+                      <span style={{ fontSize: '18px' }}>🐝</span>
                     </div>
 
                     {/* Hive info */}
@@ -272,10 +267,10 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
                         {hive.name}
                       </p>
                       <p
-                        className="text-xs text-gray-500"
+                        className="text-xs text-gray-400"
                         style={{ fontFamily: 'Afacad Flux, sans-serif' }}
                       >
-                        Salute: {hive.health_score}% {hive.varroa_detected && '• Varroa rilevato'}
+                        {hive.device.name}
                       </p>
                     </div>
 
@@ -295,18 +290,16 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
                       </p>
                     </div>
 
-                    {/* Device status */}
-                    <div className="flex items-center gap-1.5">
-                      <div
-                        className="rounded-lg px-2 py-1 text-xs font-medium"
-                        style={{
-                          backgroundColor: hive.device.battery > 50 ? '#dcfce7' : '#fef3c7',
-                          color: hive.device.battery > 50 ? '#15803d' : '#a16207',
-                          fontFamily: 'Afacad Flux, sans-serif',
-                        }}
-                      >
-                        {hive.device.battery}%
-                      </div>
+                    {/* Device battery */}
+                    <div
+                      className="rounded-lg px-2 py-1 text-xs font-medium"
+                      style={{
+                        backgroundColor: hive.device.battery > 50 ? '#dcfce7' : '#fef3c7',
+                        color: hive.device.battery > 50 ? '#15803d' : '#a16207',
+                        fontFamily: 'Afacad Flux, sans-serif',
+                      }}
+                    >
+                      {hive.device.battery}%
                     </div>
                   </div>
                 );
