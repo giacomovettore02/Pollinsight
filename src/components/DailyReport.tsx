@@ -1,28 +1,124 @@
-import VarroaAlert from './VarroaAlert';
-import EnvMiniChart from './EnvMiniChart';
-import { apiaryData as d } from '../data/mockData';
-import { Bug, TrendingUp, AlertTriangle, MapPin } from 'lucide-react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import {
+  MapPin, ChevronDown, Check, AlertTriangle, ShieldCheck, Bug,
+  Calendar, ChevronLeft, ChevronRight, Camera, FlaskConical, AlertCircle
+} from 'lucide-react';
+import { mockLocations, varroaHistory } from '../data/mockData';
+import type { Location, Hive, VarroaDetection } from '../data/mockData';
 
+const DAYS_SHORT = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+
+function formatDateCard(date: Date): { day: string; num: string } {
+  return {
+    day: DAYS_SHORT[date.getDay()],
+    num: String(date.getDate()).padStart(2, '0'),
+  };
+}
+
+function cn(...classes: (string | boolean | undefined)[]) {
+  return classes.filter(Boolean).join(' ');
+}
 
 export default function DailyReport() {
+  // Location and hive selection
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(mockLocations[0] ?? null);
+  const [selectedHive, setSelectedHive] = useState<Hive | null>(
+    mockLocations[0]?.hives[0] ?? null
+  );
+  const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
+  const locationDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Calendar state
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
+  const calendarRef = useRef<HTMLDivElement>(null);
+
+  // Generate days for current month
+  const daysInMonth = useMemo(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const days: Date[] = [];
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
+      days.push(new Date(d));
+    }
+
+    return days;
+  }, []);
+
+  // Scroll to selected date on mount
+  useEffect(() => {
+    if (calendarRef.current) {
+      const todayEl = calendarRef.current.querySelector(`[data-date="${selectedDate}"]`);
+      if (todayEl) {
+        todayEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+  }, [selectedDate]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (locationDropdownRef.current && !locationDropdownRef.current.contains(event.target as Node)) {
+        setLocationDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Get detection data for selected hive and date
+  const detectionReport = useMemo<VarroaDetection | null>(() => {
+    if (!selectedHive) return null;
+    const history = varroaHistory[selectedHive.id] || [];
+    return history.find(d => d.date === selectedDate) || null;
+  }, [selectedHive, selectedDate]);
+
+  // Handle location change
+  const handleLocationChange = (location: Location) => {
+    setSelectedLocation(location);
+    setSelectedHive(location.hives[0] ?? null);
+    setLocationDropdownOpen(false);
+    // Reset to today
+    setSelectedDate(new Date().toISOString().split('T')[0]);
+  };
+
+  // Check if date is today
+  const isToday = (dateStr: string) => {
+    return dateStr === new Date().toISOString().split('T')[0];
+  };
+
+  // Today's date string for header
   const todayStr = new Date().toLocaleDateString('it-IT', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
   });
 
-  // Mock weekly trend data
-  const weeklyVarroaScans = [
-    { day: 'Mon', detected: 0 },
-    { day: 'Tue', detected: 0 },
-    { day: 'Wed', detected: 1 },
-    { day: 'Thu', detected: 0 },
-    { day: 'Fri', detected: 0 },
-    { day: 'Sat', detected: 2 },
-    { day: 'Sun', detected: d.varroa_detected ? 1 : 0 },
-  ];
+  // Get varroa status for hive summary
+  const getHiveVarroaStatus = (hive: Hive) => {
+    const history = varroaHistory[hive.id] || [];
+    const recentDetections = history.filter(d => d.detected).length;
+    if (recentDetections > 5) return 'critical';
+    if (recentDetections > 2) return 'warning';
+    return 'healthy';
+  };
 
-  const maxVarroa = Math.max(...weeklyVarroaScans.map(s => s.detected), 1);
+  if (!selectedLocation || !selectedHive) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f7f4ef' }}>
+        <p className="text-gray-400" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
+          Nessun dato disponibile
+        </p>
+      </div>
+    );
+  }
 
   return (
     <main className="max-w-5xl mx-auto px-4 md:px-8 pb-12 space-y-5 pt-6">
@@ -36,231 +132,455 @@ export default function DailyReport() {
             className="font-bold text-gray-800 text-3xl mt-1 leading-tight"
             style={{ fontFamily: 'Comfortaa, sans-serif' }}
           >
-            Report Giornaliero
+            Report Varroa
           </h1>
         </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <div
-            className="flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-medium shadow-sm"
-            style={{ backgroundColor: '#e6faf5', color: '#0d9488', fontFamily: 'Afacad Flux, sans-serif' }}
+
+        {/* Location Selector */}
+        <div ref={locationDropdownRef} className="relative">
+          <button
+            onClick={() => setLocationDropdownOpen(prev => !prev)}
+            className="flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-medium shadow-sm transition-all hover:shadow-md"
+            style={{
+              backgroundColor: '#e6faf5',
+              color: '#0d9488',
+              fontFamily: 'Afacad Flux, sans-serif',
+            }}
           >
-            <MapPin size={13} strokeWidth={2} />
-            <span>{d.apiary_name}</span>
-          </div>
+            <MapPin size={14} strokeWidth={2} />
+            <span className="max-w-[180px] truncate">{selectedLocation.address}</span>
+            <ChevronDown
+              size={16}
+              strokeWidth={2}
+              style={{
+                transform: locationDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.2s ease',
+              }}
+            />
+          </button>
+
+          {locationDropdownOpen && (
+            <div
+              className="absolute top-full right-0 mt-2 w-72 rounded-2xl shadow-xl z-50 overflow-hidden border"
+              style={{ backgroundColor: 'white', borderColor: '#f3f4f6' }}
+            >
+              <div
+                className="px-4 py-2.5 text-xs font-bold uppercase tracking-wider"
+                style={{
+                  color: '#6b7280',
+                  fontFamily: 'Afacad Flux, sans-serif',
+                  backgroundColor: '#f9fafb',
+                  borderBottom: '1px solid #f3f4f6',
+                }}
+              >
+                Seleziona ubicazione
+              </div>
+
+              <div className="max-h-64 overflow-y-auto">
+                {mockLocations.map(location => {
+                  const isSelected = location.id === selectedLocation.id;
+
+                  return (
+                    <button
+                      key={location.id}
+                      onClick={() => handleLocationChange(location)}
+                      className="w-full px-4 py-3 text-left transition-colors hover:bg-gray-50 flex items-start gap-3"
+                      style={{
+                        backgroundColor: isSelected ? '#f5f0f8' : 'transparent',
+                      }}
+                    >
+                      <div
+                        className="mt-0.5 rounded-lg p-1.5 flex-shrink-0"
+                        style={{ backgroundColor: isSelected ? '#e9d5ff' : '#f3f4f6' }}
+                      >
+                        <MapPin
+                          size={12}
+                          strokeWidth={2.5}
+                          color={isSelected ? '#6B2D8C' : '#9ca3af'}
+                        />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="font-semibold text-sm"
+                            style={{
+                              color: isSelected ? '#6B2D8C' : '#374151',
+                              fontFamily: 'Comfortaa, sans-serif',
+                            }}
+                          >
+                            {location.name}
+                          </span>
+                          {isSelected && <Check size={14} strokeWidth={2.5} color="#6B2D8C" />}
+                        </div>
+                        <p
+                          className="text-xs text-gray-500 mt-0.5"
+                          style={{ fontFamily: 'Afacad Flux, sans-serif' }}
+                        >
+                          {location.address}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Varroa Alert */}
-      {d.varroa_detected && (
-        <VarroaAlert hiveName={d.hive_id} cropImages={d.alert_crops} />
-      )}
-
-      {/* Varroa Detection Section */}
-      <section
-        className="rounded-[16px] p-6 shadow-sm"
-        style={{ backgroundColor: 'white' }}
-      >
-        <div className="flex items-center gap-3 mb-5">
-          <div
-            className="rounded-2xl p-2.5"
-            style={{ backgroundColor: '#fff0e8' }}
+      {/* Hive Selector Tabs */}
+      <div className="rounded-2xl p-4 shadow-sm" style={{ backgroundColor: 'white' }}>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span
+            className="text-xs font-semibold text-gray-400 uppercase tracking-wide"
+            style={{ fontFamily: 'Afacad Flux, sans-serif' }}
           >
-            <Bug size={18} strokeWidth={2.5} color="#ff823a" />
-          </div>
-          <div>
-            <h3
-              className="font-bold text-gray-800 text-lg"
-              style={{ fontFamily: 'Comfortaa, sans-serif' }}
-            >
-              Rilevamento Varroa
-            </h3>
-            <p
-              className="text-gray-400 text-sm mt-0.5"
-              style={{ fontFamily: 'Afacad Flux, sans-serif' }}
-            >
-              Riepilogo monitoraggio acari settimanale
-            </p>
-          </div>
-        </div>
+            Alveari:
+          </span>
+          {selectedLocation.hives.map(hive => {
+            const isSelected = selectedHive.id === hive.id;
+            const status = getHiveVarroaStatus(hive);
 
-        {/* Weekly bar chart */}
-        <div className="flex items-end gap-2 h-28 mb-3">
-          {weeklyVarroaScans.map((scan) => {
-            const height = scan.detected > 0 ? (scan.detected / maxVarroa) * 100 : 8;
-            const hasVarroa = scan.detected > 0;
             return (
-              <div key={scan.day} className="flex-1 flex flex-col items-center gap-1">
-                <div
-                  className="w-full rounded-t-xl transition-all"
+              <button
+                key={hive.id}
+                onClick={() => {
+                  setSelectedHive(hive);
+                  setSelectedDate(new Date().toISOString().split('T')[0]);
+                }}
+                className="flex items-center gap-2 rounded-xl px-3 py-2 transition-all"
+                style={{
+                  backgroundColor: isSelected ? '#f5f0f8' : '#f9fafb',
+                  border: `1.5px solid ${isSelected ? '#6B2D8C' : '#e5e7eb'}`,
+                }}
+              >
+                <span
+                  className="w-2 h-2 rounded-full flex-shrink-0"
                   style={{
-                    height: `${height}%`,
-                    backgroundColor: hasVarroa ? '#ff823a' : '#e5e7eb',
-                    minHeight: 8,
+                    backgroundColor: status === 'healthy' ? '#22c55e' : status === 'warning' ? '#f59e0b' : '#ef4444',
                   }}
                 />
                 <span
-                  className="text-xs text-gray-400"
-                  style={{ fontFamily: 'Afacad Flux, sans-serif' }}
+                  className="text-xs font-semibold"
+                  style={{
+                    color: isSelected ? '#6B2D8C' : '#374151',
+                    fontFamily: 'Afacad Flux, sans-serif',
+                  }}
                 >
-                  {['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'][['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(scan.day)]}
+                  {hive.name}
                 </span>
-              </div>
+                {status !== 'healthy' && (
+                  <AlertTriangle size={12} color="#f59e0b" />
+                )}
+              </button>
             );
           })}
         </div>
+      </div>
+
+      {/* Horizontal Scrollable Calendar */}
+      <div className="rounded-2xl shadow-sm overflow-hidden" style={{ backgroundColor: 'white' }}>
+        <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid #f3f4f6' }}>
+          <div className="flex items-center gap-2">
+            <Calendar size={16} color="#6B2D8C" />
+            <span
+              className="font-semibold text-sm"
+              style={{ color: '#374151', fontFamily: 'Comfortaa, sans-serif' }}
+            >
+              {new Date().toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => {
+                calendarRef.current?.scrollBy({ left: -200, behavior: 'smooth' });
+              }}
+              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <ChevronLeft size={18} color="#6b7280" />
+            </button>
+            <button
+              onClick={() => {
+                calendarRef.current?.scrollBy({ left: 200, behavior: 'smooth' });
+              }}
+              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <ChevronRight size={18} color="#6b7280" />
+            </button>
+          </div>
+        </div>
 
         <div
-          className="rounded-2xl p-4 flex items-start gap-3"
-          style={{ backgroundColor: d.varroa_detected ? '#fff0e8' : '#f0fdf4' }}
+          ref={calendarRef}
+          className="flex gap-2 px-4 py-3 overflow-x-auto scroll-smooth"
+          style={{ scrollbarWidth: 'thin', scrollbarColor: '#e5e7eb transparent' }}
         >
-          {d.varroa_detected ? (
-            <>
-              <AlertTriangle size={16} strokeWidth={2.5} style={{ color: '#ff823a', marginTop: 2 }} />
-              <p className="text-sm text-gray-600" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-                <strong className="text-gray-800">Azione richiesta:</strong> Acari varroa rilevati
-                nell'ultimo scan. Trattamento consigliato entro 48 ore.
-              </p>
-            </>
+          {daysInMonth.map(date => {
+            const dateStr = date.toISOString().split('T')[0];
+            const { day, num } = formatDateCard(date);
+            const isSelected = dateStr === selectedDate;
+            const isTodayDate = isToday(dateStr);
+
+            // Check if there was a detection on this date
+            const history = varroaHistory[selectedHive.id] || [];
+            const dayDetection = history.find(d => d.date === dateStr);
+            const hasDetection = dayDetection?.detected;
+
+            // Don't allow selecting future dates
+            const isFuture = date > new Date();
+
+            return (
+              <button
+                key={dateStr}
+                data-date={dateStr}
+                onClick={() => !isFuture && setSelectedDate(dateStr)}
+                disabled={isFuture}
+                className={cn(
+                  'flex flex-col items-center px-3 py-2 rounded-xl transition-all min-w-[52px]',
+                  isSelected && 'scale-105',
+                  isFuture && 'opacity-40 cursor-not-allowed'
+                )}
+                style={{
+                  backgroundColor: isSelected ? '#6B2D8C' : isTodayDate ? '#f5f0f8' : 'transparent',
+                  boxShadow: isSelected ? '0 4px 12px rgba(107, 45, 140, 0.25)' : 'none',
+                }}
+              >
+                <span
+                  className="text-xs font-medium"
+                  style={{
+                    color: isSelected ? 'white' : '#9ca3af',
+                    fontFamily: 'Afacad Flux, sans-serif',
+                  }}
+                >
+                  {day}
+                </span>
+                <span
+                  className="text-base font-bold mt-0.5"
+                  style={{
+                    color: isSelected ? 'white' : '#374151',
+                    fontFamily: 'Comfortaa, sans-serif',
+                  }}
+                >
+                  {num}
+                </span>
+                {/* Detection indicator */}
+                {hasDetection && !isSelected && (
+                  <span
+                    className="w-1.5 h-1.5 rounded-full mt-1"
+                    style={{ backgroundColor: '#ef4444' }}
+                  />
+                )}
+                {hasDetection && isSelected && (
+                  <span
+                    className="w-1.5 h-1.5 rounded-full mt-1"
+                    style={{ backgroundColor: 'white' }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Detection Report Panel */}
+      <div className="rounded-2xl shadow-sm overflow-hidden" style={{ backgroundColor: 'white' }}>
+        {detectionReport ? (
+          detectionReport.detected ? (
+            // Case B: Varroa Detected
+            <div>
+              {/* Header with warning */}
+              <div
+                className="px-6 py-4"
+                style={{ backgroundColor: '#fef3c7', borderBottom: '1px solid #fde68a' }}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className="rounded-xl p-2 flex-shrink-0"
+                    style={{ backgroundColor: 'white' }}
+                  >
+                    <AlertTriangle size={20} color="#d97706" strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <p
+                      className="font-bold text-sm"
+                      style={{ color: '#92400e', fontFamily: 'Comfortaa, sans-serif' }}
+                    >
+                      Varroa Rilevata
+                    </p>
+                    <p
+                      className="text-xs mt-0.5"
+                      style={{ color: '#b45309', fontFamily: 'Afacad Flux, sans-serif' }}
+                    >
+                      {new Date(selectedDate + 'T00:00:00').toLocaleDateString('it-IT', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long',
+                      })}
+                      {' '}— Confidenza: {detectionReport.confidence}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Detection details */}
+              <div className="px-6 py-5 space-y-5">
+                {/* Severity and count */}
+                <div className="flex items-center gap-3 flex-wrap">
+                  <div
+                    className="rounded-xl px-3 py-2 flex items-center gap-2"
+                    style={{
+                      backgroundColor: detectionReport.severity === 'high' ? '#fee2e2' :
+                        detectionReport.severity === 'medium' ? '#fef3c7' : '#fef9e7',
+                    }}
+                  >
+                    <Bug size={14} color="#b45309" />
+                    <span
+                      className="text-xs font-semibold"
+                      style={{
+                        color: detectionReport.severity === 'high' ? '#b91c1c' :
+                          detectionReport.severity === 'medium' ? '#b45309' : '#a16207',
+                        fontFamily: 'Afacad Flux, sans-serif',
+                      }}
+                    >
+                      {detectionReport.miteCount} {detectionReport.miteCount === 1 ? 'acaro' : 'acari'} rilevati
+                    </span>
+                  </div>
+                </div>
+
+                {/* Notes */}
+                {detectionReport.notes && (
+                  <div
+                    className="rounded-xl px-4 py-3"
+                    style={{ backgroundColor: '#fffbeb', border: '1px solid #fde68a' }}
+                  >
+                    <p
+                      className="text-sm"
+                      style={{ color: '#78350f', fontFamily: 'Afacad Flux, sans-serif' }}
+                    >
+                      {detectionReport.notes}
+                    </p>
+                  </div>
+                )}
+
+                {/* Image Gallery */}
+                {detectionReport.images.length > 0 && (
+                  <div>
+                    <p
+                      className="text-xs font-semibold uppercase tracking-wide mb-3"
+                      style={{ color: '#6b7280', fontFamily: 'Afacad Flux, sans-serif' }}
+                    >
+                      Immagini di rilevamento
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {detectionReport.images.slice(0, 2).map((img, idx) => (
+                        <div
+                          key={idx}
+                          className="relative rounded-xl overflow-hidden aspect-[4/3]"
+                          style={{ backgroundColor: '#f3f4f6' }}
+                        >
+                          <img
+                            src={img}
+                            alt={`Rilevamento ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <div
+                            className="absolute bottom-2 left-2 flex items-center gap-1.5 rounded-lg px-2 py-1"
+                            style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+                          >
+                            <Camera size={12} color="white" />
+                            <span
+                              className="text-xs text-white"
+                              style={{ fontFamily: 'Afacad Flux, sans-serif' }}
+                            >
+                              Scan {idx + 1}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Button */}
+                <button
+                  className="w-full rounded-2xl py-3 flex items-center justify-center gap-2 font-semibold transition-all hover:opacity-90"
+                  style={{
+                    backgroundColor: '#6B2D8C',
+                    color: 'white',
+                    fontFamily: 'Afacad Flux, sans-serif',
+                  }}
+                >
+                  <FlaskConical size={16} />
+                  Registra Trattamento
+                </button>
+              </div>
+            </div>
           ) : (
-            <>
-              <TrendingUp size={16} strokeWidth={2.5} style={{ color: '#22c55e', marginTop: 2 }} />
-              <p className="text-sm text-gray-600" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-                <strong className="text-gray-800">Tutto bene:</strong> Nessun acaro varroa rilevato questa
-                settimana. Continuare il monitoraggio regolare.
+            // Case A: No Varroa Detected
+            <div className="px-6 py-8">
+              <div className="flex flex-col items-center text-center">
+                <div
+                  className="rounded-2xl p-4 mb-4"
+                  style={{ backgroundColor: '#dcfce7' }}
+                >
+                  <ShieldCheck size={40} color="#15803d" strokeWidth={2} />
+                </div>
+                <p
+                  className="font-bold text-lg"
+                  style={{ color: '#15803d', fontFamily: 'Comfortaa, sans-serif' }}
+                >
+                  Nessuna minaccia rilevata
+                </p>
+                <p
+                  className="text-sm mt-2 max-w-sm"
+                  style={{ color: '#166534', fontFamily: 'Afacad Flux, sans-serif' }}
+                >
+                  La salute dell'arnia è ottimale. Il monitoraggio automatico non ha rilevato presenza di varroa in questa data.
+                </p>
+                <div
+                  className="mt-4 flex items-center gap-2 rounded-xl px-4 py-2"
+                  style={{ backgroundColor: '#f0fdf4' }}
+                >
+                  <span className="text-xs text-gray-500" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
+                    Confidenza analisi:
+                  </span>
+                  <span
+                    className="text-sm font-semibold"
+                    style={{ color: '#15803d', fontFamily: 'Comfortaa, sans-serif' }}
+                  >
+                    {detectionReport.confidence}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          )
+        ) : (
+          // Empty state: no data for selected date
+          <div className="px-6 py-8">
+            <div className="flex flex-col items-center text-center">
+              <div
+                className="rounded-2xl p-4 mb-4"
+                style={{ backgroundColor: '#f3f4f6' }}
+              >
+                <AlertCircle size={40} color="#9ca3af" strokeWidth={2} />
+              </div>
+              <p
+                className="font-semibold text-gray-600"
+                style={{ fontFamily: 'Comfortaa, sans-serif' }}
+              >
+                Nessun dato disponibile
               </p>
-            </>
-          )}
-        </div>
-      </section>
-
-      {/* Environmental Trends Section */}
-      <section
-        className="rounded-[16px] p-6 shadow-sm"
-        style={{ backgroundColor: 'white' }}
-      >
-        <div className="flex items-center gap-3 mb-5">
-          <div
-            className="rounded-2xl p-2.5"
-            style={{ backgroundColor: '#e6faf5' }}
-          >
-            <TrendingUp size={18} strokeWidth={2.5} color="#20C997" />
+              <p
+                className="text-sm mt-2 text-gray-400"
+                style={{ fontFamily: 'Afacad Flux, sans-serif' }}
+              >
+                Non ci sono rilevazioni per questa data. Seleziona un altro giorno dal calendario.
+              </p>
+            </div>
           </div>
-          <div>
-            <h3
-              className="font-bold text-gray-800 text-lg"
-              style={{ fontFamily: 'Comfortaa, sans-serif' }}
-            >
-              Tendenze Ambientali
-            </h3>
-            <p
-              className="text-gray-400 text-sm mt-0.5"
-              style={{ fontFamily: 'Afacad Flux, sans-serif' }}
-            >
-              Modelli di temperatura e umidità nelle 24 ore
-            </p>
-          </div>
-        </div>
-
-        <div className="flex gap-4 flex-wrap md:flex-nowrap">
-          <EnvMiniChart
-            data={d.hourly_temp}
-            label="Temperatura"
-            unit="°C"
-            color="#6B2D8C"
-            bgColor="#f5f0f8"
-            gradId="dailyTempGrad"
-            gradStart="#6B2D8C"
-          />
-          <EnvMiniChart
-            data={d.hourly_humidity}
-            label="Umidità"
-            unit="%"
-            color="#20C997"
-            bgColor="#e6faf5"
-            gradId="dailyHumidGrad"
-            gradStart="#20C997"
-          />
-        </div>
-
-        {/* Summary stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
-          <div
-            className="rounded-2xl p-4"
-            style={{ backgroundColor: '#f5f0f8' }}
-          >
-            <p
-              className="text-xs text-gray-400 mb-1"
-              style={{ fontFamily: 'Afacad Flux, sans-serif' }}
-            >
-              Temp Media
-            </p>
-            <p
-              className="font-bold text-xl text-gray-800"
-              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#6B2D8C' }}
-            >
-              {(
-                d.hourly_temp.reduce((a, b) => a + b, 0) / d.hourly_temp.length
-              ).toFixed(1)}
-              °C
-            </p>
-          </div>
-          <div
-            className="rounded-2xl p-4"
-            style={{ backgroundColor: '#f5f0f8' }}
-          >
-            <p
-              className="text-xs text-gray-400 mb-1"
-              style={{ fontFamily: 'Afacad Flux, sans-serif' }}
-            >
-              Temp Max
-            </p>
-            <p
-              className="font-bold text-xl"
-              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#6B2D8C' }}
-            >
-              {Math.max(...d.hourly_temp).toFixed(1)}°C
-            </p>
-          </div>
-          <div
-            className="rounded-2xl p-4"
-            style={{ backgroundColor: '#e6faf5' }}
-          >
-            <p
-              className="text-xs text-gray-400 mb-1"
-              style={{ fontFamily: 'Afacad Flux, sans-serif' }}
-            >
-              Umidità Media
-            </p>
-            <p
-              className="font-bold text-xl"
-              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#20C997' }}
-            >
-              {(
-                d.hourly_humidity.reduce((a, b) => a + b, 0) /
-                d.hourly_humidity.length
-              ).toFixed(0)}
-              %
-            </p>
-          </div>
-          <div
-            className="rounded-2xl p-4"
-            style={{ backgroundColor: '#e6faf5' }}
-          >
-            <p
-              className="text-xs text-gray-400 mb-1"
-              style={{ fontFamily: 'Afacad Flux, sans-serif' }}
-            >
-              Umidità Min
-            </p>
-            <p
-              className="font-bold text-xl"
-              style={{ fontFamily: 'Comfortaa, sans-serif', color: '#20C997' }}
-            >
-              {Math.min(...d.hourly_humidity).toFixed(0)}%
-            </p>
-          </div>
-        </div>
-      </section>
+        )}
+      </div>
     </main>
   );
 }
