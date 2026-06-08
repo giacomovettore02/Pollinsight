@@ -255,6 +255,85 @@ export function getHealthSummary(hives: Hive[]): {
   return { avgHealth, varroaDetected, healthyHives };
 }
 
+// Varroa detection history types
+export interface VarroaDetection {
+  date: string;
+  detected: boolean;
+  confidence: number;
+  miteCount: number;
+  images: string[];
+  severity: 'none' | 'low' | 'medium' | 'high';
+  notes?: string;
+}
+
+// Generate mock varroa detection history
+function generateVarroaHistory(hasActiveVarroa: boolean): VarroaDetection[] {
+  const history: VarroaDetection[] = [];
+  const today = new Date();
+
+  for (let i = 29; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toISOString().split('T')[0];
+
+    if (hasActiveVarroa) {
+      if (i < 7 && Math.random() > 0.3) {
+        history.push({
+          date: dateStr,
+          detected: true,
+          confidence: 75 + Math.floor(Math.random() * 20),
+          miteCount: 2 + Math.floor(Math.random() * 5),
+          images: [
+            'https://images.pexels.com/photos/1630216/pexels-photo-1630216.jpeg?auto=compress&cs=tinysrgb&w=400',
+            'https://images.pexels.com/photos/47356/bumble-bee-bee-insect-47356.jpeg?auto=compress&cs=tinysrgb&w=400',
+          ],
+          severity: 'medium',
+          notes: 'Presenza di varroa identificata su api operaie. Monitoraggio consigliato.',
+        });
+      } else if (i >= 7 && i < 14 && Math.random() > 0.5) {
+        history.push({
+          date: dateStr,
+          detected: true,
+          confidence: 65 + Math.floor(Math.random() * 25),
+          miteCount: 1 + Math.floor(Math.random() * 3),
+          images: ['https://images.pexels.com/photos/1630216/pexels-photo-1630216.jpeg?auto=compress&cs=tinysrgb&w=400'],
+          severity: 'low',
+        });
+      } else {
+        history.push({
+          date: dateStr,
+          detected: false,
+          confidence: 90 + Math.floor(Math.random() * 10),
+          miteCount: 0,
+          images: [],
+          severity: 'none',
+        });
+      }
+    } else {
+      history.push({
+        date: dateStr,
+        detected: false,
+        confidence: 92 + Math.floor(Math.random() * 8),
+        miteCount: 0,
+        images: [],
+        severity: 'none',
+      });
+    }
+  }
+
+  return history;
+}
+
+// Pre-generated varroa history for all hives
+export const varroaHistory: Record<string, VarroaDetection[]> = {
+  'hive-1': generateVarroaHistory(false),
+  'hive-2': generateVarroaHistory(true),
+  'hive-3': generateVarroaHistory(false),
+  'hive-4': generateVarroaHistory(false),
+  'hive-5': generateVarroaHistory(true),
+  'hive-6': generateVarroaHistory(false),
+};
+
 // Legacy export for backward compatibility
 export const apiaryData = {
   get apiary_name() { return mockLocations[0].address; },
