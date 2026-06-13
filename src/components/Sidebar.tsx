@@ -1,6 +1,8 @@
-import { Activity, FileText } from 'lucide-react';
+import { Activity, FileText, FlaskConical } from 'lucide-react';
+import LanguageSwitch from './LanguageSwitch';
+import { useLanguage } from '../i18n/LanguageContext';
 
-export type ViewType = 'realtime' | 'daily';
+export type ViewType = 'realtime' | 'daily' | 'demo';
 
 interface SidebarProps {
   currentView: ViewType;
@@ -8,6 +10,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
+  const { pick } = useLanguage();
+
   return (
     <aside
       className="fixed left-0 top-0 h-full w-24 md:w-32 flex flex-col items-center py-6 z-50 shadow-sm"
@@ -44,7 +48,7 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
           style={{
             backgroundColor: currentView === 'realtime' ? '#f5f0f8' : 'transparent',
           }}
-          title="Metriche in Tempo Reale"
+          title={pick('Metriche in tempo reale', 'Live metrics')}
         >
           <Activity
             size={20}
@@ -59,7 +63,7 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
               fontFamily: 'Afacad Flux, sans-serif',
             }}
           >
-            Attività
+            {pick('Attività', 'Activity')}
           </span>
         </button>
 
@@ -72,7 +76,7 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
           style={{
             backgroundColor: currentView === 'daily' ? '#f5f0f8' : 'transparent',
           }}
-          title="Rapporto Giornaliero"
+          title={pick('Rapporto giornaliero', 'Daily report')}
         >
           <FileText
             size={20}
@@ -90,7 +94,36 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
             Report
           </span>
         </button>
+
+        <button
+          onClick={() => onViewChange('demo')}
+          className={`group relative flex items-center justify-start gap-3 w-full rounded-2xl py-3 px-3 transition-all ${currentView === 'demo'
+              ? 'shadow-sm'
+              : 'hover:bg-gray-50'
+            }`}
+          style={{
+            backgroundColor: currentView === 'demo' ? '#f5f0f8' : 'transparent',
+          }}
+          title="Raspberry Pi Demo"
+        >
+          <FlaskConical
+            size={20}
+            strokeWidth={2.5}
+            color={currentView === 'demo' ? '#6B2D8C' : '#9ca3af'}
+            className="flex-shrink-0"
+          />
+          <span
+            className="text-xs md:text-sm font-medium leading-tight hidden md:block"
+            style={{
+              color: currentView === 'demo' ? '#6B2D8C' : '#9ca3af',
+              fontFamily: 'Afacad Flux, sans-serif',
+            }}
+          >
+            Demo
+          </span>
+        </button>
       </nav>
+      <LanguageSwitch />
     </aside>
   );
 }

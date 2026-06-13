@@ -4,11 +4,14 @@ import HealthIndicator from './components/HealthIndicator';
 import ActivityChart from './components/ActivityChart';
 import DeviceHealth from './components/DeviceHealth';
 import DailyReport from './components/DailyReport';
+import DemoDashboard from './components/DemoDashboard';
 import AddressSelector from './components/AddressSelector';
 import { mockLocations, aggregateActivity, getWorstDeviceStatus } from './data/mockData';
 import type { Location } from './data/mockData';
+import { localizeEntityName, useLanguage } from './i18n/LanguageContext';
 
 export default function App() {
+  const { language, pick } = useLanguage();
   const [currentView, setCurrentView] = useState<ViewType>('realtime');
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     mockLocations[0] ?? null
@@ -20,7 +23,7 @@ export default function App() {
     return () => clearInterval(id);
   }, []);
 
-  const dateStr = now.toLocaleDateString('it-IT', {
+  const dateStr = now.toLocaleDateString(language === 'it' ? 'it-IT' : 'en-GB', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -42,7 +45,7 @@ export default function App() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f7f4ef' }}>
         <p className="text-gray-400" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-          Nessuna ubicazione disponibile
+          {pick('Nessuna ubicazione disponibile', 'No locations available')}
         </p>
       </div>
     );
@@ -66,7 +69,7 @@ export default function App() {
                   className="font-bold text-gray-800 text-3xl mt-1 leading-tight"
                   style={{ fontFamily: 'Comfortaa, sans-serif' }}
                 >
-                  Panoramica Attività
+                  {pick('Panoramica Attività', 'Activity Overview')}
                 </h1>
               </div>
               <div className="flex items-center gap-3 flex-wrap">
@@ -95,11 +98,16 @@ export default function App() {
                   fontFamily: 'Afacad Flux, sans-serif',
                 }}
               >
-                {selectedLocation.hives.length} {selectedLocation.hives.length === 1 ? 'alveare' : 'alveari'}
+                {selectedLocation.hives.length}{' '}
+                {selectedLocation.hives.length === 1
+                  ? pick('alveare', 'hive')
+                  : pick('alveari', 'hives')}
               </div>
               <p className="text-sm text-gray-500" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-                <span className="font-medium text-gray-700">{selectedLocation.name}</span>
-                {' '}— {selectedLocation.address}
+                <span className="font-medium text-gray-700">
+                  {localizeEntityName(selectedLocation.name, language)}
+                </span>
+                {' - '}{selectedLocation.address}
               </p>
             </div>
 
@@ -121,12 +129,15 @@ export default function App() {
             {/* Activity Chart */}
             <ActivityChart
               hives={selectedLocation.hives}
+              environment={selectedLocation.env_data}
               aggregatedToday={aggregatedData.today}
               aggregatedYesterday={aggregatedData.yesterday}
             />
           </main>
-        ) : (
+        ) : currentView === 'daily' ? (
           <DailyReport />
+        ) : (
+          <DemoDashboard />
         )}
       </div>
     </div>

@@ -1,21 +1,24 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import {
   MapPin, ChevronDown, Check, AlertTriangle, ShieldCheck, Bug,
-  Calendar, ChevronLeft, ChevronRight, Camera, FlaskConical, AlertCircle
+  Calendar, ChevronLeft, ChevronRight, Camera, AlertCircle
 } from 'lucide-react';
 import { mockLocations, varroaHistory } from '../data/mockData';
 import type { Location, Hive, VarroaDetection } from '../data/mockData';
+import { localizeEntityName, useLanguage, type Language } from '../i18n/LanguageContext';
 
-const DAYS_SHORT = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
-
-function formatDateCard(date: Date): { day: string; num: string } {
+function formatDateCard(date: Date, language: Language): { day: string; num: string } {
+  const days = language === 'it'
+    ? ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']
+    : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   return {
-    day: DAYS_SHORT[date.getDay()],
+    day: days[date.getDay()],
     num: String(date.getDate()).padStart(2, '0'),
   };
 }
 
 export default function DailyReport() {
+  const { language, pick } = useLanguage();
   // Location and hive selection
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(mockLocations[0] ?? null);
   const [selectedHive, setSelectedHive] = useState<Hive | null>(
@@ -49,9 +52,12 @@ export default function DailyReport() {
   }, []);
 
   const currentPeriod = useMemo(() => {
-    const str = new Date().toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+    const str = new Date().toLocaleDateString(language === 'it' ? 'it-IT' : 'en-GB', {
+      month: 'long',
+      year: 'numeric',
+    });
     return str.charAt(0).toUpperCase() + str.slice(1);
-  }, []);
+  }, [language]);
 
   // Scroll to selected date on mount
   useEffect(() => {
@@ -95,7 +101,7 @@ export default function DailyReport() {
   };
 
   // Today's date string for header
-  const todayStr = new Date().toLocaleDateString('it-IT', {
+  const todayStr = new Date().toLocaleDateString(language === 'it' ? 'it-IT' : 'en-GB', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -114,7 +120,7 @@ export default function DailyReport() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f7f4ef' }}>
         <p className="text-gray-400" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-          Nessun dato disponibile
+          {pick('Nessun dato disponibile', 'No data available')}
         </p>
       </div>
     );
@@ -132,7 +138,7 @@ export default function DailyReport() {
             className="font-bold text-gray-800 text-3xl mt-1 leading-tight"
             style={{ fontFamily: 'Comfortaa, sans-serif' }}
           >
-            Report Varroa
+            {pick('Report Varroa', 'Varroa Report')}
           </h1>
         </div>
 
@@ -173,7 +179,7 @@ export default function DailyReport() {
                   borderBottom: '1px solid #f3f4f6',
                 }}
               >
-                Seleziona ubicazione
+                {pick('Seleziona ubicazione', 'Select location')}
               </div>
 
               <div className="max-h-64 overflow-y-auto">
@@ -209,7 +215,7 @@ export default function DailyReport() {
                               fontFamily: 'Comfortaa, sans-serif',
                             }}
                           >
-                            {location.name}
+                            {localizeEntityName(location.name, language)}
                           </span>
                           {isSelected && <Check size={14} strokeWidth={2.5} color="#6B2D8C" />}
                         </div>
@@ -264,7 +270,7 @@ export default function DailyReport() {
         >
           {daysInMonth.map(date => {
             const dateStr = date.toISOString().split('T')[0];
-            const { day, num } = formatDateCard(date);
+            const { day, num } = formatDateCard(date, language);
             const isSelected = dateStr === selectedDate;
             const isTodayDate = isToday(dateStr);
 
@@ -330,7 +336,7 @@ export default function DailyReport() {
                 className="text-xs font-semibold uppercase tracking-wide"
                 style={{ color: '#6b7280', fontFamily: 'Afacad Flux, sans-serif' }}
               >
-                Seleziona Alveare
+                {pick('Seleziona alveare', 'Select Hive')}
               </p>
             </div>
 
@@ -356,9 +362,9 @@ export default function DailyReport() {
                       className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                       style={{ backgroundColor: isSelected ? '#e9d5ff' : '#f9fafb' }}
                     >
-                      <span style={{ fontSize: '18px' }}>
-                        {status === 'healthy' ? '🐝' : status === 'warning' ? '⚠️' : '🚨'}
-                      </span>
+                      {status === 'healthy'
+                        ? <ShieldCheck size={18} color="#15803d" />
+                        : <AlertTriangle size={18} color={status === 'warning' ? '#d97706' : '#dc2626'} />}
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -369,7 +375,7 @@ export default function DailyReport() {
                           fontFamily: 'Comfortaa, sans-serif',
                         }}
                       >
-                        {hive.name}
+                        {localizeEntityName(hive.name, language)}
                       </p>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span
@@ -382,7 +388,7 @@ export default function DailyReport() {
                           className="text-xs"
                           style={{ color: '#6b7280', fontFamily: 'Afacad Flux, sans-serif' }}
                         >
-                          Salute: {hive.health_score}%
+                          {pick('Salute', 'Health')}: {hive.health_score}%
                         </span>
                       </div>
                     </div>
@@ -421,18 +427,21 @@ export default function DailyReport() {
                           className="font-bold text-sm"
                           style={{ color: '#92400e', fontFamily: 'Comfortaa, sans-serif' }}
                         >
-                          Varroa Rilevata
+                          {pick('Varroa rilevata', 'Varroa Detected')}
                         </p>
                         <p
                           className="text-xs mt-0.5"
                           style={{ color: '#b45309', fontFamily: 'Afacad Flux, sans-serif' }}
                         >
-                          {new Date(selectedDate + 'T00:00:00').toLocaleDateString('it-IT', {
+                          {new Date(selectedDate + 'T00:00:00').toLocaleDateString(
+                            language === 'it' ? 'it-IT' : 'en-GB',
+                            {
                             weekday: 'long',
                             day: 'numeric',
                             month: 'long',
-                          })}
-                          {' '}— Confidenza: {detectionReport.confidence}%
+                            }
+                          )}
+                          {' - '}{pick('Confidenza', 'Confidence')}: {detectionReport.confidence}%
                         </p>
                       </div>
                     </div>
@@ -458,7 +467,10 @@ export default function DailyReport() {
                             fontFamily: 'Afacad Flux, sans-serif',
                           }}
                         >
-                          {detectionReport.miteCount} {detectionReport.miteCount === 1 ? 'acaro' : 'acari'} rilevati
+                          {detectionReport.miteCount}{' '}
+                          {detectionReport.miteCount === 1
+                            ? pick('acaro rilevato', 'mite detected')
+                            : pick('acari rilevati', 'mites detected')}
                         </span>
                       </div>
                     </div>
@@ -473,7 +485,9 @@ export default function DailyReport() {
                           className="text-sm"
                           style={{ color: '#78350f', fontFamily: 'Afacad Flux, sans-serif' }}
                         >
-                          {detectionReport.notes}
+                          {language === 'it'
+                            ? detectionReport.notes
+                            : 'Varroa was identified on worker bees. Continued monitoring is recommended.'}
                         </p>
                       </div>
                     )}
@@ -485,7 +499,7 @@ export default function DailyReport() {
                           className="text-xs font-semibold uppercase tracking-wide mb-2"
                           style={{ color: '#6b7280', fontFamily: 'Afacad Flux, sans-serif' }}
                         >
-                          Immagini di rilevamento
+                          {pick('Immagini di rilevamento', 'Detection Images')}
                         </p>
                         <div className="grid grid-cols-2 gap-3">
                           {detectionReport.images.slice(0, 2).map((img, idx) => (
@@ -496,7 +510,7 @@ export default function DailyReport() {
                             >
                               <img
                                 src={img}
-                                alt={`Rilevamento ${idx + 1}`}
+                                alt={`${pick('Rilevamento', 'Detection')} ${idx + 1}`}
                                 className="w-full h-full object-cover"
                               />
                               <div
@@ -532,20 +546,23 @@ export default function DailyReport() {
                       className="font-bold text-lg"
                       style={{ color: '#15803d', fontFamily: 'Comfortaa, sans-serif' }}
                     >
-                      Nessuna minaccia rilevata
+                      {pick('Nessuna minaccia rilevata', 'No Threat Detected')}
                     </p>
                     <p
                       className="text-sm mt-2 max-w-xs"
                       style={{ color: '#166534', fontFamily: 'Afacad Flux, sans-serif' }}
                     >
-                      La salute dell'arnia è ottimale. Il monitoraggio non ha rilevato presenza di varroa.
+                      {pick(
+                        'La salute dell\'arnia è ottimale. Il monitoraggio non ha rilevato presenza di Varroa.',
+                        'Hive health is optimal. Monitoring found no evidence of Varroa.'
+                      )}
                     </p>
                     <div
                       className="mt-4 flex items-center gap-2 rounded-xl px-4 py-2"
                       style={{ backgroundColor: '#f0fdf4' }}
                     >
                       <span className="text-xs text-gray-500" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-                        Confidenza:
+                        {pick('Confidenza:', 'Confidence:')}
                       </span>
                       <span
                         className="text-sm font-semibold"
@@ -571,13 +588,13 @@ export default function DailyReport() {
                     className="font-semibold text-gray-600"
                     style={{ fontFamily: 'Comfortaa, sans-serif' }}
                   >
-                    Nessun dato disponibile
+                    {pick('Nessun dato disponibile', 'No Data Available')}
                   </p>
                   <p
                     className="text-sm mt-2 text-gray-400"
                     style={{ fontFamily: 'Afacad Flux, sans-serif' }}
                   >
-                    Non ci sono rilevazioni per questa data
+                    {pick('Non ci sono rilevazioni per questa data', 'There are no detections for this date')}
                   </p>
                 </div>
               </div>

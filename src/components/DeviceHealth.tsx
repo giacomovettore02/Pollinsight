@@ -1,4 +1,5 @@
 import { BatteryCharging, Signal } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface DeviceHealthProps {
   battery: number;
@@ -7,10 +8,12 @@ interface DeviceHealthProps {
 }
 
 export default function DeviceHealth({ battery, solarCharging, signal }: DeviceHealthProps) {
+  const { pick } = useLanguage();
+
   return (
     <div className="flex items-center justify-between gap-4 flex-wrap">
       <p className="text-gray-400 text-xs" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-        Ultimo aggiornamento: 06:14
+        {pick('Ultimo aggiornamento', 'Last updated')}: 06:14
       </p>
       <div className="flex items-center gap-5">
         <div className="flex items-center gap-2">
@@ -22,7 +25,9 @@ export default function DeviceHealth({ battery, solarCharging, signal }: DeviceH
               {battery}%
             </p>
             <p className="text-xs text-gray-400 leading-none mt-0.5" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-              {solarCharging ? 'Carica solare' : 'Su batteria'}
+              {solarCharging
+                ? pick('Carica solare', 'Solar charging')
+                : pick('Su batteria', 'On battery')}
             </p>
           </div>
         </div>
@@ -33,10 +38,10 @@ export default function DeviceHealth({ battery, solarCharging, signal }: DeviceH
           </div>
           <div>
             <p className="text-xs font-semibold text-gray-700 leading-none" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-              {signal} Attivo
+              {signal} {pick('Attivo', 'Active')}
             </p>
             <p className="text-xs text-gray-400 leading-none mt-0.5" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-              Connessione stabile
+              {pick('Connessione stabile', 'Stable connection')}
             </p>
           </div>
         </div>

@@ -1,4 +1,5 @@
-import { Activity, Thermometer, Droplets } from 'lucide-react';
+import { Activity, Droplets, Thermometer } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface SummaryRowProps {
   totalBees: number;
@@ -33,7 +34,10 @@ function StatCard({
         <p className="text-gray-500 text-sm truncate" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
           {label}
         </p>
-        <p className="font-bold text-gray-800 text-2xl leading-tight truncate" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
+        <p
+          className="font-bold text-gray-800 text-2xl leading-tight truncate"
+          style={{ fontFamily: 'Comfortaa, sans-serif' }}
+        >
           {value}
         </p>
       </div>
@@ -42,19 +46,21 @@ function StatCard({
 }
 
 export default function SummaryRow({ totalBees, temp, humidity }: SummaryRowProps) {
+  const { language, pick } = useLanguage();
+
   return (
     <div className="flex gap-4 flex-wrap md:flex-nowrap">
       <StatCard
         icon={<Activity size={24} strokeWidth={2.5} />}
-        label="Attività Totale Oggi"
-        value={`${totalBees.toLocaleString()} api`}
+        label={pick('Attività totale oggi', 'Total activity today')}
+        value={`${totalBees.toLocaleString(language === 'it' ? 'it-IT' : 'en-GB')} ${pick('api', 'bees')}`}
         bg="#f5f0f8"
         iconBg="#6B2D8C"
         iconColor="white"
       />
       <StatCard
         icon={<Thermometer size={24} strokeWidth={2.5} />}
-        label="Temperatura"
+        label={pick('Temperatura', 'Temperature')}
         value={`${temp}°C`}
         bg="#fffbd9"
         iconBg="#FFD700"
@@ -62,7 +68,7 @@ export default function SummaryRow({ totalBees, temp, humidity }: SummaryRowProp
       />
       <StatCard
         icon={<Droplets size={24} strokeWidth={2.5} />}
-        label="Umidità"
+        label={pick('Umidità', 'Humidity')}
         value={`${humidity}%`}
         bg="#e6faf5"
         iconBg="#20C997"

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AlertTriangle, TrendingUp, AlertCircle, Thermometer, Droplets, Activity, ChevronDown, ChevronUp } from 'lucide-react';
 import type { Location } from '../data/mockData';
+import { localizeEntityName, useLanguage } from '../i18n/LanguageContext';
 
 interface HealthIndicatorProps {
   location: Location;
@@ -9,6 +10,7 @@ interface HealthIndicatorProps {
 
 export default function HealthIndicator({ location, aggregatedTotal }: HealthIndicatorProps) {
   const [showBreakdown, setShowBreakdown] = useState(false);
+  const { language, pick } = useLanguage();
 
   const { env_data, hives } = location;
   const temp = env_data.temp;
@@ -30,28 +32,40 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
   let alertIcon: React.ReactNode;
 
   if (isCritical) {
-    alertMessage = 'Condizioni critiche rilevate. L\'alveare necessita di attenzione immediata. Le api potrebbero essere sottoposte a stress a causa delle condizioni ambientali sfavorevoli. Verificare l\'accesso all\'acqua, la ventilazione e lo spazio disponibile.';
+    alertMessage = pick(
+      'Condizioni critiche rilevate. L\'alveare necessita di attenzione immediata. Verificare l\'accesso all\'acqua, la ventilazione e lo spazio disponibile.',
+      'Critical conditions detected. The hive needs immediate attention. Check water access, ventilation, and available space.'
+    );
     alertType = 'critical';
     alertColor = '#dc2626';
     alertBg = '#fff5f5';
     alertBorder = '#fecaca';
     alertIcon = <AlertTriangle size={22} strokeWidth={2.5} />;
   } else if (hasIssue) {
-    alertMessage = 'Attività api ridotta nonostante i parametri ambientali siano ottimali (temperatura e umidità ideali). Si consiglia di verificare lo stato della colonia e le risorse a disposizione.';
+    alertMessage = pick(
+      'Attività api ridotta nonostante temperatura e umidità ottimali. Verificare lo stato della colonia e le risorse disponibili.',
+      'Bee activity is low despite optimal temperature and humidity. Check colony condition and available resources.'
+    );
     alertType = 'warning';
     alertColor = '#d97706';
     alertBg = '#fffbeb';
     alertBorder = '#fde68a';
     alertIcon = <AlertCircle size={22} strokeWidth={2.5} />;
   } else if (isHealthy) {
-    alertMessage = 'Tutti i parametri sono entro i range ottimali. Le api sono attive e l\'ambiente è favorevole per lo sviluppo della colonia e la raccolta del nettare. Continua il monitoraggio regolare.';
+    alertMessage = pick(
+      'Tutti i parametri sono entro i range ottimali. Continua il monitoraggio regolare.',
+      'All parameters are within their optimal ranges. Continue regular monitoring.'
+    );
     alertType = 'success';
     alertColor = '#059669';
     alertBg = '#f0fdf4';
     alertBorder = '#bbf7d0';
     alertIcon = <TrendingUp size={22} strokeWidth={2.5} />;
   } else {
-    alertMessage = 'Monitoraggio in corso. Alcuni parametri sono fuori dall\'intervallo ottimale. Tieni d\'occhio l\'andamento nelle prossime ore.';
+    alertMessage = pick(
+      'Monitoraggio in corso. Alcuni parametri sono fuori dall\'intervallo ottimale.',
+      'Monitoring is in progress. Some parameters are outside the optimal range.'
+    );
     alertType = 'warning';
     alertColor = '#d97706';
     alertBg = '#fffbeb';
@@ -59,9 +73,17 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
     alertIcon = <AlertCircle size={22} strokeWidth={2.5} />;
   }
 
-  const tempStatus = isTempOptimal ? 'Ottimale' : temp > 35 ? 'Troppo calda' : 'Troppo fresca';
-  const humStatus = isHumidityOptimal ? 'Ottimale' : humidity > 70 ? 'Alta' : 'Bassa';
-  const actStatus = isActivityGood ? 'Buona' : 'Anomalia bassa';
+  const tempStatus = isTempOptimal
+    ? pick('Ottimale', 'Optimal')
+    : temp > 35
+      ? pick('Troppo calda', 'Too warm')
+      : pick('Troppo fresca', 'Too cool');
+  const humStatus = isHumidityOptimal
+    ? pick('Ottimale', 'Optimal')
+    : humidity > 70
+      ? pick('Alta', 'High')
+      : pick('Bassa', 'Low');
+  const actStatus = isActivityGood ? pick('Buona', 'Good') : pick('Anomalia bassa', 'Low activity');
   const actStatusColor = isActivityGood ? '#059669' : '#d97706';
 
   return (
@@ -72,7 +94,7 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
         <div className="rounded-2xl p-5 shadow-sm flex flex-col gap-3" style={{ backgroundColor: 'white' }}>
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-              Temperatura
+              {pick('Temperatura', 'Temperature')}
             </p>
             <div className="rounded-xl p-1.5" style={{ backgroundColor: '#fffbd9' }}>
               <Thermometer size={15} strokeWidth={2} color="#b45309" />
@@ -80,7 +102,7 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
           </div>
           <div>
             <p className="font-bold leading-none" style={{ color: '#1e293b', fontFamily: 'Comfortaa, sans-serif', fontSize: '2.2rem' }}>
-              {temp.toFixed(1)}<span className="text-xl font-semibold">°C</span>
+              {temp.toFixed(1)}<span className="text-xl font-semibold"> C</span>
             </p>
           </div>
           <div className="flex items-center gap-1.5 mt-auto">
@@ -101,7 +123,7 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
         <div className="rounded-2xl p-5 shadow-sm flex flex-col gap-3" style={{ backgroundColor: 'white' }}>
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-              Umidità
+              {pick('Umidità', 'Humidity')}
             </p>
             <div className="rounded-xl p-1.5" style={{ backgroundColor: '#e6faf5' }}>
               <Droplets size={15} strokeWidth={2} color="#0d9488" />
@@ -130,7 +152,7 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
         <div className="rounded-2xl p-5 shadow-sm flex flex-col gap-3" style={{ backgroundColor: 'white' }}>
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-              Attività {hives.length > 1 ? 'Totale' : ''}
+              {pick('Attività', 'Activity')} {hives.length > 1 ? pick('Totale', 'Total') : ''}
             </p>
             <div className="rounded-xl p-1.5" style={{ backgroundColor: '#f5f0f8' }}>
               <Activity size={15} strokeWidth={2} color="#6B2D8C" />
@@ -141,7 +163,7 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
               {aggregatedTotal.toLocaleString()}
             </p>
             <p className="text-xs text-gray-400 mt-1" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-              api/oggi
+              {pick('api/oggi', 'bees/today')}
             </p>
           </div>
           <div className="flex items-center gap-1.5 mt-auto">
@@ -173,13 +195,15 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
                 style={{ color: alertColor, fontFamily: 'Comfortaa, sans-serif' }}
               >
                 {alertType === 'success'
-                  ? 'Alveare in salute'
+                  ? pick('Alveare in salute', 'Healthy hive')
                   : alertType === 'critical'
-                  ? 'Condizioni critiche'
-                  : 'Attenzione richiesta'}
+                    ? pick('Condizioni critiche', 'Critical conditions')
+                    : pick('Attenzione richiesta', 'Attention required')}
               </p>
               <p className="text-xs text-gray-500 mt-0.5" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-                {hives.length} {hives.length === 1 ? 'alveare' : 'alveari'} monitorati
+                {hives.length}{' '}
+                {hives.length === 1 ? pick('alveare', 'hive') : pick('alveari', 'hives')}{' '}
+                {pick('monitorati', 'monitored')}
               </p>
             </div>
           </div>
@@ -195,7 +219,10 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
               }}
             >
               <AlertCircle size={13} strokeWidth={2.5} />
-              ALERT: Attività api ridotta nonostante parametri meteo ideali
+              {pick(
+                'ALLERTA: attività api ridotta nonostante parametri meteo ideali',
+                'ALERT: low bee activity despite ideal weather conditions'
+              )}
             </div>
           )}
 
@@ -219,14 +246,14 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
               className="text-sm font-semibold"
               style={{ color: '#374151', fontFamily: 'Afacad Flux, sans-serif' }}
             >
-              Dettaglio per alveare
+              {pick('Dettaglio per alveare', 'Hive breakdown')}
             </span>
             <div className="flex items-center gap-2">
               <span
                 className="text-xs px-2 py-0.5 rounded-full"
                 style={{ backgroundColor: '#f5f0f8', color: '#6B2D8C', fontFamily: 'Afacad Flux, sans-serif' }}
               >
-                {hives.length} alveari
+                {hives.length} {pick('alveari', 'hives')}
               </span>
               {showBreakdown ? (
                 <ChevronUp size={18} strokeWidth={2} color="#6b7280" />
@@ -255,7 +282,7 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
                       className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                       style={{ backgroundColor: '#f5f0f8' }}
                     >
-                      <span style={{ fontSize: '18px' }}>🐝</span>
+                      <Activity size={18} color="#6B2D8C" />
                     </div>
 
                     {/* Hive info */}
@@ -264,7 +291,7 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
                         className="font-semibold text-sm"
                         style={{ color: '#1e293b', fontFamily: 'Comfortaa, sans-serif' }}
                       >
-                        {hive.name}
+                        {localizeEntityName(hive.name, language)}
                       </p>
                       <p
                         className="text-xs text-gray-400"
@@ -286,7 +313,7 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
                         className="text-xs text-gray-400"
                         style={{ fontFamily: 'Afacad Flux, sans-serif' }}
                       >
-                        api/oggi
+                        {pick('api/oggi', 'bees/today')}
                       </p>
                     </div>
 

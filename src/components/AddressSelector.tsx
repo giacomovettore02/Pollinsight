@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { MapPin, ChevronDown, Check } from 'lucide-react';
 import type { Location } from '../data/mockData';
+import { localizeEntityName, useLanguage } from '../i18n/LanguageContext';
 
 interface AddressSelectorProps {
   locations: Location[];
@@ -13,6 +14,7 @@ export default function AddressSelector({
   selectedLocation,
   onSelectLocation,
 }: AddressSelectorProps) {
+  const { language, pick } = useLanguage();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -65,7 +67,7 @@ export default function AddressSelector({
               borderBottom: '1px solid #f3f4f6',
             }}
           >
-            Seleziona ubicazione
+            {pick('Seleziona ubicazione', 'Select location')}
           </div>
 
           <div className="max-h-64 overflow-y-auto">
@@ -105,7 +107,7 @@ export default function AddressSelector({
                           fontFamily: 'Comfortaa, sans-serif',
                         }}
                       >
-                        {location.name}
+                        {localizeEntityName(location.name, language)}
                       </span>
                       {isSelected && (
                         <Check size={14} strokeWidth={2.5} color="#6B2D8C" />
@@ -121,7 +123,8 @@ export default function AddressSelector({
                       className="text-xs mt-1"
                       style={{ color: '#6b7280', fontFamily: 'Afacad Flux, sans-serif' }}
                     >
-                      {hiveCount} {hiveCount === 1 ? 'alveare' : 'alveari'}
+                      {hiveCount}{' '}
+                      {hiveCount === 1 ? pick('alveare', 'hive') : pick('alveari', 'hives')}
                     </p>
                   </div>
                 </button>
@@ -134,7 +137,7 @@ export default function AddressSelector({
               className="px-4 py-6 text-center text-sm text-gray-400"
               style={{ fontFamily: 'Afacad Flux, sans-serif' }}
             >
-              Nessuna ubicazione registrata
+              {pick('Nessuna ubicazione registrata', 'No registered locations')}
             </div>
           )}
         </div>

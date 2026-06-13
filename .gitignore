@@ -1,4 +1,26 @@
 node_modules/
+dist/
 .env
+.env.local
+.env.*.local
+*.pyc
+__pycache__/
+raspberry/.env
+raspberry/
+.raspberry-access.txt
+.raspberry-ssh/
+.venv-dev/
+raspberry/state/
+raspberry/logs/
+raspberry-fona/.env
+raspberry-fona/state/
+raspberry-fona/logs/
 frontend/package-lock.json
 package-lock.json
+
+# Private repo-local LLM wiki skill and knowledge store
+.agents/skills/llm-wiki/
+.llm-wiki/
+
+# Private project documents
+docs/
