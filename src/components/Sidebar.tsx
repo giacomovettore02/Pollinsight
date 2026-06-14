@@ -17,24 +17,12 @@ export default function Sidebar({ currentView, onViewChange }: SidebarProps) {
       className="fixed left-0 top-0 h-full w-24 md:w-32 flex flex-col items-center py-6 z-50 shadow-sm"
       style={{ backgroundColor: 'white' }}
     >
-      {/* Logo at top with ladybug image and text */}
-      <div
-        className="flex flex-col items-center gap-2 mb-8 px-2"
-      >
+      <div className="flex items-center justify-center w-full mb-8 px-1.5">
         <img
-          src="/coccinella.Dq1fXhvj.svg"
-          alt="PollinAction Logo"
-          className="w-12 h-12 md:w-14 md:h-14"
+          src="/pollinsight-logo.png"
+          alt="PollinSight"
+          className="w-full h-auto object-contain"
         />
-        <span
-          className="text-xs md:text-sm font-bold text-center leading-tight hidden md:block"
-          style={{
-            color: '#6B2D8C',
-            fontFamily: 'Comfortaa, sans-serif',
-          }}
-        >
-          PollinSight
-        </span>
       </div>
 
       {/* Navigation items */}
