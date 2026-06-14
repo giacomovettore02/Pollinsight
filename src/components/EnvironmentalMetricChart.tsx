@@ -56,8 +56,8 @@ function formatValue(value: number, metric: Metric): string {
 export default function EnvironmentalMetricChart(props: EnvironmentalMetricChartProps) {
   const { language, pick } = useLanguage();
   const metric = props.metric;
-  const color = metric === 'temperature' ? '#d97706' : '#0d9488';
-  const lightColor = metric === 'temperature' ? '#fff7ed' : '#e6faf5';
+  const color = metric === 'temperature' ? '#d97706' : '#0284c7';
+  const lightColor = metric === 'temperature' ? '#fff7ed' : '#e0f2fe';
   const Icon = metric === 'temperature' ? Thermometer : Droplets;
   const title = metric === 'temperature'
     ? pick('Temperatura', 'Temperature')
@@ -91,20 +91,20 @@ export default function EnvironmentalMetricChart(props: EnvironmentalMetricChart
                 {title}
               </h2>
               <p className="text-xs text-gray-400 mt-0.5" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-                {pick('Ultimi cinque minuti', 'Last five minutes')}
+                {pick('Ultimo minuto', 'Last minute')}
               </p>
             </div>
           </div>
           <div
             className="rounded-full px-2.5 py-1 flex items-center gap-1.5 text-[11px] font-semibold"
             style={{
-              backgroundColor: props.live ? '#e6faf5' : '#f3f4f6',
-              color: props.live ? '#0d9488' : '#6b7280',
+              backgroundColor: props.live ? '#e0f2fe' : '#f3f4f6',
+              color: props.live ? '#0284c7' : '#6b7280',
               fontFamily: 'Afacad Flux, sans-serif',
             }}
           >
             {props.live ? <Radio size={11} className="animate-pulse" /> : <WifiOff size={11} />}
-            {props.live ? pick('Ogni secondo', 'Every second') : pick('In attesa', 'Waiting')}
+            {props.live ? pick('Ogni 2 secondi', 'Every 2 seconds') : pick('In attesa', 'Waiting')}
           </div>
         </div>
 
@@ -168,6 +168,18 @@ export default function EnvironmentalMetricChart(props: EnvironmentalMetricChart
                     />
                   </>
                 )}
+                {points.map(([x, y], index) => (
+                  <circle
+                    key={`${props.values[index].timestamp}-point`}
+                    cx={x}
+                    cy={y}
+                    r="3.2"
+                    fill="white"
+                    stroke={color}
+                    strokeWidth="2"
+                    clipPath={`url(#live-${metric}-clip)`}
+                  />
+                ))}
                 {props.values.map((point, index) => {
                   if (
                     props.values.length > 8 &&

@@ -70,8 +70,8 @@ export default function SummaryRow({ totalBees, temp, humidity }: SummaryRowProp
         icon={<Droplets size={24} strokeWidth={2.5} />}
         label={pick('Umidità', 'Humidity')}
         value={`${humidity}%`}
-        bg="#e6faf5"
-        iconBg="#20C997"
+        bg="#e0f2fe"
+        iconBg="#0284c7"
         iconColor="white"
       />
     </div>

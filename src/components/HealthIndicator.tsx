@@ -125,8 +125,8 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
               {pick('Umidità', 'Humidity')}
             </p>
-            <div className="rounded-xl p-1.5" style={{ backgroundColor: '#e6faf5' }}>
-              <Droplets size={15} strokeWidth={2} color="#0d9488" />
+            <div className="rounded-xl p-1.5" style={{ backgroundColor: '#e0f2fe' }}>
+              <Droplets size={15} strokeWidth={2} color="#0284c7" />
             </div>
           </div>
           <div>
@@ -195,7 +195,7 @@ export default function HealthIndicator({ location, aggregatedTotal }: HealthInd
                 style={{ color: alertColor, fontFamily: 'Comfortaa, sans-serif' }}
               >
                 {alertType === 'success'
-                  ? pick('Alveare in salute', 'Healthy hive')
+                  ? pick('Parametri nella norma', 'Parameters in range')
                   : alertType === 'critical'
                     ? pick('Condizioni critiche', 'Critical conditions')
                     : pick('Attenzione richiesta', 'Attention required')}

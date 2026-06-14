@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertCircle,
   AlertTriangle,
@@ -39,7 +39,6 @@ interface EvidenceItem {
 
 interface DisplayEvidenceItem extends EvidenceItem {
   public_url: string;
-  displayConfidence: number;
   capturedAt: string;
 }
 
@@ -75,7 +74,6 @@ const STAGES: Array<Exclude<RunStatus, 'error'>> = [
   'complete',
 ];
 
-const FALLBACK_EVIDENCE_CONFIDENCES = [0.991, 0.987, 0.994, 0.983, 0.989];
 const FALLBACK_EVIDENCE_TIMESTAMPS = [
   '2026-06-10T09:18:00',
   '2026-06-11T11:42:00',
@@ -183,6 +181,7 @@ export default function DemoDashboard() {
   const [selectedImage, setSelectedImage] = useState<DisplayEvidenceItem | null>(null);
   const [environmentSamples, setEnvironmentSamples] = useState<EnvironmentSample[]>([]);
   const [now, setNow] = useState(Date.now());
+  const latestRunRef = useRef<DemoRun | null>(null);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
@@ -259,49 +258,58 @@ export default function DemoDashboard() {
   }, [pick]);
 
   useEffect(() => {
-    if (
-      !run ||
-      run.sensor_status !== 'online' ||
-      run.temperature_c === null ||
-      run.humidity_percent === null
-    ) {
-      return;
-    }
+    latestRunRef.current = run;
+  }, [run]);
 
-    const sample: EnvironmentSample = {
-      bootId: run.boot_id,
-      timestamp: run.updated_at,
-      temperature: Number(run.temperature_c),
-      humidity: Number(run.humidity_percent),
+  useEffect(() => {
+    const sampleLatestReading = () => {
+      const latestRun = latestRunRef.current;
+      const cutoff = Date.now() - 60_000;
+
+      if (
+        !latestRun ||
+        latestRun.sensor_status !== 'online' ||
+        latestRun.temperature_c === null ||
+        latestRun.humidity_percent === null
+      ) {
+        setEnvironmentSamples(current =>
+          current.filter(sample => new Date(sample.timestamp).getTime() >= cutoff)
+        );
+        return;
+      }
+
+      const sample: EnvironmentSample = {
+        bootId: latestRun.boot_id,
+        timestamp: new Date().toISOString(),
+        temperature: Number(latestRun.temperature_c),
+        humidity: Number(latestRun.humidity_percent),
+      };
+
+      setEnvironmentSamples(current => {
+        if (current.length > 0 && current[current.length - 1].bootId !== sample.bootId) {
+          return [sample];
+        }
+        return [...current, sample]
+          .filter(item => new Date(item.timestamp).getTime() >= cutoff)
+          .slice(-30);
+      });
     };
 
-    setEnvironmentSamples(current => {
-      const last = current[current.length - 1];
-      if (last?.timestamp === sample.timestamp) return current;
-      if (last && last.bootId !== sample.bootId) return [sample];
-      return [...current, sample].slice(-300);
-    });
-  }, [run]);
+    sampleLatestReading();
+    const timer = window.setInterval(sampleLatestReading, 2_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const evidence = useMemo(() => {
     const client = supabase;
     if (!run || !client) return [];
     const rawItems = run.evidence ?? [];
-    const scores = rawItems
-      .map(item => item.confidence)
-      .filter(score => Number.isFinite(score));
-    const uniformConfidence = scores.length > 1 && scores.every(
-      score => Math.abs(score - scores[0]) < 0.0005
-    );
 
     return rawItems.map((item, index): DisplayEvidenceItem => ({
       ...item,
       public_url:
         item.public_url ??
         client.storage.from('demo-evidence').getPublicUrl(item.path).data.publicUrl,
-      displayConfidence: uniformConfidence
-        ? FALLBACK_EVIDENCE_CONFIDENCES[index % FALLBACK_EVIDENCE_CONFIDENCES.length]
-        : item.confidence,
       capturedAt:
         item.captured_at ??
         FALLBACK_EVIDENCE_TIMESTAMPS[index % FALLBACK_EVIDENCE_TIMESTAMPS.length],
@@ -571,8 +579,8 @@ export default function DemoDashboard() {
               detail={run.sensor_status === 'online'
                 ? pick('Mediana di cinque letture SHT40', 'Median of five SHT40 readings')
                 : pick('Sensore non disponibile', 'Sensor unavailable')}
-              iconBg="#e6faf5"
-              iconColor="#0d9488"
+              iconBg="#e0f2fe"
+              iconColor="#0284c7"
             />
             <StatCard
               icon={<Clock3 size={18} />}
@@ -631,9 +639,6 @@ export default function DemoDashboard() {
                       <p className="text-xs font-semibold text-gray-700 truncate" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
                         {item.filename}
                       </p>
-                      <p className="text-xs mt-0.5" style={{ color: '#ea580c', fontFamily: 'Afacad Flux, sans-serif' }}>
-                        {(item.displayConfidence * 100).toFixed(1)}% {pick('confidenza', 'confidence')}
-                      </p>
                       <p className="text-[11px] mt-0.5 text-gray-400" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
                         {formatShotTimestamp(item.capturedAt, language)}
                       </p>
@@ -676,16 +681,10 @@ export default function DemoDashboard() {
               alt={`${pick('Dimensione completa', 'Full size')} ${selectedImage.filename}`}
               className="w-full max-h-[70vh] object-contain rounded-2xl"
             />
-            <div className="flex items-center justify-between gap-3 mt-4 flex-wrap">
+            <div className="mt-4">
               <p className="font-semibold text-gray-700" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
                 {selectedImage.filename}
               </p>
-              <span
-                className="rounded-full px-3 py-1 text-sm font-semibold"
-                style={{ backgroundColor: '#ffedd5', color: '#c2410c', fontFamily: 'Afacad Flux, sans-serif' }}
-              >
-                {(selectedImage.displayConfidence * 100).toFixed(1)}% {pick('confidenza', 'confidence')}
-              </span>
             </div>
             <p className="text-sm text-gray-400 mt-2" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
               {pick('Scattata il', 'Captured on')} {formatShotTimestamp(selectedImage.capturedAt, language)}

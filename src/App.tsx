@@ -89,10 +89,10 @@ export default function App() {
               <div
                 className="rounded-xl px-3 py-1.5 text-xs font-semibold"
                 style={{
-                  backgroundColor: selectedLocation.hives.some(h => h.health_score < 85 || h.varroa_detected)
+                  backgroundColor: selectedLocation.hives.some(h => h.varroa_detected)
                     ? '#fef3c7'
                     : '#dcfce7',
-                  color: selectedLocation.hives.some(h => h.health_score < 85 || h.varroa_detected)
+                  color: selectedLocation.hives.some(h => h.varroa_detected)
                     ? '#a16207'
                     : '#15803d',
                   fontFamily: 'Afacad Flux, sans-serif',

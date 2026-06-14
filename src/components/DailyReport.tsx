@@ -388,7 +388,9 @@ export default function DailyReport() {
                           className="text-xs"
                           style={{ color: '#6b7280', fontFamily: 'Afacad Flux, sans-serif' }}
                         >
-                          {pick('Salute', 'Health')}: {hive.health_score}%
+                          {status === 'healthy'
+                            ? pick('Nessuna Varroa recente', 'No recent Varroa')
+                            : pick('Varroa rilevata', 'Varroa detected')}
                         </span>
                       </div>
                     </div>
@@ -441,7 +443,6 @@ export default function DailyReport() {
                             month: 'long',
                             }
                           )}
-                          {' - '}{pick('Confidenza', 'Confidence')}: {detectionReport.confidence}%
                         </p>
                       </div>
                     </div>
@@ -553,24 +554,10 @@ export default function DailyReport() {
                       style={{ color: '#166534', fontFamily: 'Afacad Flux, sans-serif' }}
                     >
                       {pick(
-                        'La salute dell\'arnia è ottimale. Il monitoraggio non ha rilevato presenza di Varroa.',
-                        'Hive health is optimal. Monitoring found no evidence of Varroa.'
+                        'Il monitoraggio non ha rilevato presenza di Varroa in questo report.',
+                        'Monitoring found no evidence of Varroa in this report.'
                       )}
                     </p>
-                    <div
-                      className="mt-4 flex items-center gap-2 rounded-xl px-4 py-2"
-                      style={{ backgroundColor: '#f0fdf4' }}
-                    >
-                      <span className="text-xs text-gray-500" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
-                        {pick('Confidenza:', 'Confidence:')}
-                      </span>
-                      <span
-                        className="text-sm font-semibold"
-                        style={{ color: '#15803d', fontFamily: 'Comfortaa, sans-serif' }}
-                      >
-                        {detectionReport.confidence}%
-                      </span>
-                    </div>
                   </div>
                 </div>
               )
