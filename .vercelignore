@@ -1,0 +1,16 @@
+raspberry/
+raspberry-fona/
+.llm-wiki/
+.agents/
+.venv-dev/
+docs/
+supabase/
+frontend/
+dist/
+node_modules/
+.env
+.env.*
+*.pyc
+__pycache__/
+.raspberry-access.txt
+.raspberry-ssh/
