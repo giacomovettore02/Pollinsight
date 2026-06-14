@@ -311,7 +311,7 @@ export default function DemoDashboard() {
   const heartbeatAge = run
     ? now - new Date(run.updated_at).getTime()
     : Number.POSITIVE_INFINITY;
-  const deviceOffline = Boolean(run && heartbeatAge > 30000);
+  const deviceOffline = Boolean(run && heartbeatAge > 20 * 60 * 1000);
   const waitingForDevice = Boolean(run?.status === 'complete' && deviceOffline);
   const isRunning = Boolean(run && run.status !== 'complete' && run.status !== 'error');
   const currentStageIndex = run ? STAGES.findIndex(stage => stage === run.status) : -1;
@@ -507,7 +507,7 @@ export default function DemoDashboard() {
               className="rounded-xl px-3 py-2 text-xs font-semibold"
               style={{ backgroundColor: '#ffffff', color: '#c2410c', fontFamily: 'Afacad Flux, sans-serif' }}
             >
-              {pick('Prove caricate', 'Evidence uploaded')}: {evidence.length}/5
+              {pick('Prove caricate', 'Evidence uploaded')}: {evidence.length}
             </div>
           </div>
 
@@ -597,8 +597,8 @@ export default function DemoDashboard() {
                 </h2>
                 <p className="text-sm text-gray-400 mt-0.5" style={{ fontFamily: 'Afacad Flux, sans-serif' }}>
                   {pick(
-                    'Cinque classificazioni dell\'ultimo batch completato',
-                    'Five image-level classifications from the latest completed batch'
+                    'Classificazioni dell\'ultimo batch completato',
+                    'Image-level classifications from the latest completed batch'
                   )}
                 </p>
               </div>

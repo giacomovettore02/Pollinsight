@@ -1,0 +1,16 @@
+[Unit]
+Description=PollinSight FONA first-boot installer
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=!/opt/pollinsight-fona/.installed
+
+[Service]
+Type=oneshot
+Environment=POLLINSIGHT_RUN_USER=pollinsight-fona
+ExecStart=/opt/pollinsight-fona-bootstrap/install.sh
+Restart=on-failure
+RestartSec=30
+TimeoutStartSec=30min
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,17 @@
+[Unit]
+Description=PollinSight Adafruit FONA application
+Wants=pollinsight-fona-ppp.service
+After=pollinsight-fona-ppp.service
+
+[Service]
+Type=simple
+User=__POLLINSIGHT_USER__
+WorkingDirectory=/opt/pollinsight-fona
+EnvironmentFile=/opt/pollinsight-fona/.env
+ExecStart=/opt/pollinsight-fona/.venv/bin/python -m pollinsight_fona.main
+Restart=always
+RestartSec=10
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target

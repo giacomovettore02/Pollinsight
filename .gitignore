@@ -15,6 +15,9 @@ raspberry/logs/
 raspberry-fona/.env
 raspberry-fona/state/
 raspberry-fona/logs/
+raspberry-fona/archive/
+raspberry-fona/images/inbox/*
+!raspberry-fona/images/inbox/.gitkeep
 frontend/package-lock.json
 package-lock.json
 

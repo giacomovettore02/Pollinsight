@@ -1,0 +1,17 @@
+[Unit]
+Description=PollinSight Adafruit FONA PPP connection
+After=dev-serial0.device
+
+[Service]
+Type=simple
+EnvironmentFile=/opt/pollinsight-fona/.env
+WorkingDirectory=/opt/pollinsight-fona
+ExecStartPre=/opt/pollinsight-fona/.venv/bin/python -m pollinsight_fona.fona
+ExecStart=/usr/sbin/pppd call pollinsight-fona nodetach
+Restart=always
+RestartSec=10
+TimeoutStartSec=120
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target
